@@ -8,6 +8,7 @@
 #include <atomic>
 #include <unistd.h>
 #include <experimental/filesystem>
+#include "offset.hpp"
 
 namespace student {
 	void loadImage(cv::Mat& img_out, const std::string& config_folder){
@@ -387,6 +388,41 @@ namespace student {
 	}
 
 	bool planPath(const Polygon& borders, const std::vector<Polygon>& obstacle_list, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y, const std::vector<float> theta, std::vector<Path>& path, const std::string& config_folder){
-		throw std::logic_error( "STUDENT FUNCTION - PLAN PATH - NOT IMPLEMENTED" );
+		// Parameters
+		float offset_value = 50.0; // The offset value
+
+		// Start with adding an offset the obstacles in the arena
+		std::cout << "obstacle_list:" << std::endl;
+		for (Polygon obstacle : obstacle_list){
+			for (Point point : obstacle){
+				std::cout << point.x << " " << point.y << std::endl;
+			}
+			std::cout << std::endl;
+		}
+
+		std::cout << "obstacle_list_with_offset:" << std::endl;
+		std::vector<Polygon> obstacle_list_with_offset = add_offset_to_obstacles(obstacle_list, offset_value);
+		for (Polygon obstacle : obstacle_list_with_offset){
+			for (Point point : obstacle){
+				std::cout << point.x << " " << point.y << std::endl;
+			}
+			std::cout << std::endl;
+		}
+
+		std::cout << "borders:" << std::endl;
+		for (Point point : borders){
+			std::cout << point.x << " " << point.y << std::endl;
+		}
+		std::cout << std::endl;
+
+		std::cout << "borders_with_offset:" << std::endl;
+		const Polygon borders_with_offset = add_offset_to_borders(borders, -offset_value);
+		for (Point point : borders_with_offset){
+			std::cout << point.x << " " << point.y << std::endl;
+		}
+		std::cout << std::endl;
+
+		//throw std::logic_error( "STUDENT FUNCTION - PLAN PATH - NOT FULLY IMPLEMENTED" );
 	}
 }
+
