@@ -9,20 +9,21 @@ find_package(project_interface REQUIRED)
 
 ## Specify additional locations of header files
 include_directories(
- include
- ${OpenCV_INCLUDE_DIRS}
- ${project_interface_INCLUDE_DIRS}
+	include
+	${OpenCV_INCLUDE_DIRS}
+	${project_interface_INCLUDE_DIRS}
 )
 
 ## CREATE EXECUTABLE LIBRARY
 add_library(student SHARED
-   src/student_interface.cpp
-   src/offset.cpp
-   include/clipper/clipper.cpp
+	src/student_interface.cpp
+	src/offset.cpp
+	include/clipper/clipper.cpp
+	src/intersection.cpp
 )
 
 target_link_libraries(
-  student
-  ${OpenCV_LIBRARIES}
+	student
+	${OpenCV_LIBRARIES}
 )
 

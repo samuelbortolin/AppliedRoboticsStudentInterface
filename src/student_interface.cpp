@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <experimental/filesystem>
 #include "offset.hpp"
+#include "intersection.hpp"
 
 namespace student {
 	void loadImage(cv::Mat& img_out, const std::string& config_folder){
@@ -421,6 +422,8 @@ namespace student {
 			std::cout << point.x << " " << point.y << std::endl;
 		}
 		std::cout << std::endl;
+
+		std::cout << intersection_arc_segment(Point(0, 0), 1, 0, M_PI, Point(0,0), Point(0, 2)) << std::endl;
 
 		//throw std::logic_error( "STUDENT FUNCTION - PLAN PATH - NOT FULLY IMPLEMENTED" );
 	}
