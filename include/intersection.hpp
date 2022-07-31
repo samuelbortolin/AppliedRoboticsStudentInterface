@@ -34,5 +34,5 @@ bool intersection_arc_segment(Point a, double r, double s, double e, Point s2, P
 * @param[in]  s2  The starting angle of the second arc.
 * @param[in]  e2  The ending angle of the second arc.
 */
-bool arc_arc_coll(Point a1, double r1, double s1, double e1, Point a2, double r2, double s2, double e2);
+bool intersection_arc_arc(Point a1, double r1, double s1, double e1, Point a2, double r2, double s2, double e2);
 

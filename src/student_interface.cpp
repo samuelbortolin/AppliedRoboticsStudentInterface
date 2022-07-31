@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include <vector>
+#include <cmath>
 #include <atomic>
 #include <unistd.h>
 #include <experimental/filesystem>
@@ -423,7 +424,10 @@ namespace student {
 		}
 		std::cout << std::endl;
 
+		std::cout << "intersection arc segment: ";
 		std::cout << intersection_arc_segment(Point(0, 0), 1, 0, M_PI, Point(0,0), Point(0, 2)) << std::endl;
+		std::cout << "intersection arc arc: ";
+		std::cout << intersection_arc_arc(Point(0, 0), 1, 0, 1, Point(4,4), 1, 1, 0) << std::endl;
 
 		//throw std::logic_error( "STUDENT FUNCTION - PLAN PATH - NOT FULLY IMPLEMENTED" );
 	}
