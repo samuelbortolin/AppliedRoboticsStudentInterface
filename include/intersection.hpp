@@ -2,16 +2,6 @@
 
 
 /*!
-* Check if there is a intersection between two segments.
-* @param[in]  s1  The starting point of the first segment.
-* @param[in]  e1  The ending point of the first segment.
-* @param[in]  s2  The starting point of the second segment.
-* @param[in]  e2  The ending point of the second segment.
-*/
-bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
-
-
-/*!
 * Check if there is a intersection between an arc and a segment.
 * @param[in]  a   The center of the circle.
 * @param[in]  r   The radius of the circe.
@@ -35,4 +25,44 @@ bool intersection_arc_segment(Point a, double r, double s, double e, Point s2, P
 * @param[in]  e2  The ending angle of the second arc.
 */
 bool intersection_arc_arc(Point a1, double r1, double s1, double e1, Point a2, double r2, double s2, double e2);
+
+
+/*!
+* Check if there is a intersection between two segments.
+* @param[in]  s1  The starting point of the first segment.
+* @param[in]  e1  The ending point of the first segment.
+* @param[in]  s2  The starting point of the second segment.
+* @param[in]  e2  The ending point of the second segment.
+*/
+bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
+
+
+/*!
+* Check if there is a intersection between two segments.
+* @param[in]  s1  The starting point of the first segment.
+* @param[in]  e1  The ending point of the first segment.
+* @param[in]  s2  The starting point of the second segment.
+* @param[in]  e2  The ending point of the second segment.
+*/
+bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
+
+
+/*!
+* Check if there is a intersection between two segments.
+* @param[in]  s1  The starting point of the first segment.
+* @param[in]  e1  The ending point of the first segment.
+* @param[in]  s2  The starting point of the second segment.
+* @param[in]  e2  The ending point of the second segment.
+*/
+bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
+
+
+/*!
+* Check if there is a intersection between two segments and return a point of intersection.
+* @param[in]  s1  The starting point of the first segment.
+* @param[in]  e1  The ending point of the first segment.
+* @param[in]  s2  The starting point of the second segment.
+* @param[in]  e2  The ending point of the second segment.
+*/
+Point get_intersection_point_segment_segment(Point p1, Point p2, Point p3, Point p4);
 

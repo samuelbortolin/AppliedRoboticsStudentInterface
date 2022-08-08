@@ -20,6 +20,7 @@ add_library(student SHARED
 	src/offset.cpp
 	include/clipper/clipper.cpp
 	src/intersection.cpp
+	src/vertical_cell_decomposition.cpp
 )
 
 target_link_libraries(

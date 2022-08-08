@@ -11,6 +11,8 @@
 #include <experimental/filesystem>
 #include "offset.hpp"
 #include "intersection.hpp"
+#include "vertical_cell_decomposition.hpp"
+
 
 namespace student {
 	void loadImage(cv::Mat& img_out, const std::string& config_folder){
@@ -393,6 +395,8 @@ namespace student {
 		// Parameters
 		float offset_value = 50.0; // The offset value
 
+		cv::Mat plot(1000, 1000, CV_8UC3, cv::Scalar(255,255,255));
+
 		// Start with adding an offset the obstacles in the arena
 		std::cout << "obstacle_list:" << std::endl;
 		for (Polygon obstacle : obstacle_list){
@@ -425,11 +429,25 @@ namespace student {
 		std::cout << std::endl;
 
 		std::cout << "intersection arc segment: ";
-		std::cout << intersection_arc_segment(Point(0, 0), 1, 0, M_PI, Point(0,0), Point(0, 2)) << std::endl;
+		std::cout << intersection_arc_segment(Point(0, 0), 1, 0, M_PI, Point(0, 0), Point(0, 2)) << std::endl;
 		std::cout << "intersection arc arc: ";
-		std::cout << intersection_arc_arc(Point(0, 0), 1, 0, 1, Point(4,4), 1, 1, 0) << std::endl;
+		std::cout << intersection_arc_arc(Point(0, 0), 1, 0, 1, Point(4, 4), 1, 1, 0) << std::endl;
+		std::cout << "intersection segment segment: ";
+		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 0), Point(7, 0)) << std::endl;
+		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 5), Point(7, 3)) << std::endl;
+
+		std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(borders_with_offset, obstacle_list_with_offset);
+		std::cout << "segments:" << std::endl;
+		for (std::vector<Point> segment : segments){
+			std::cout << segment[0].x << " " << segment[0].y << std::endl;
+			std::cout << segment[1].x << " " << segment[1].y << std::endl;
+			cv::line(plot, cv::Point2f(segment[0].x*1000, segment[0].y*1000), cv::Point2f(segment[1].x*1000, segment[1].y*100), cv::Scalar(100, 100, 100), 2);
+			std::cout << std::endl;
+		}
+
+		cv::imshow("VCD", plot);
+		cv::waitKey(0);
 
 		//throw std::logic_error( "STUDENT FUNCTION - PLAN PATH - NOT FULLY IMPLEMENTED" );
 	}
 }
-
