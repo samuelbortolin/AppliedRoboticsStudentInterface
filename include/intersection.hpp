@@ -38,26 +38,6 @@ bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
 
 
 /*!
-* Check if there is a intersection between two segments.
-* @param[in]  s1  The starting point of the first segment.
-* @param[in]  e1  The ending point of the first segment.
-* @param[in]  s2  The starting point of the second segment.
-* @param[in]  e2  The ending point of the second segment.
-*/
-bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
-
-
-/*!
-* Check if there is a intersection between two segments.
-* @param[in]  s1  The starting point of the first segment.
-* @param[in]  e1  The ending point of the first segment.
-* @param[in]  s2  The starting point of the second segment.
-* @param[in]  e2  The ending point of the second segment.
-*/
-bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
-
-
-/*!
 * Check if there is a intersection between two segments and return a point of intersection.
 * @param[in]  s1  The starting point of the first segment.
 * @param[in]  e1  The ending point of the first segment.
