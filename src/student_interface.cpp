@@ -313,7 +313,7 @@ namespace student {
 		// std::cout << "N. contours: " << contours.size() << std::endl;
 
 		bool found = false;
-		for(int i=0; i<contours.size(); ++i){
+		for (int i=0; i<contours.size(); ++i){
 			// std::cout << (i+1) << ") Contour size: " << contours[i].size() << std::endl;
 
 			cv::approxPolyDP(contours[i], approx_curve, 10, true);
@@ -395,7 +395,7 @@ namespace student {
 		// Parameters
 		float offset_value = 50.0; // The offset value
 
-		cv::Mat plot(1000, 1000, CV_8UC3, cv::Scalar(255,255,255));
+		cv::Mat plot(2000, 2000, CV_8UC3, cv::Scalar(255,255,255));
 
 		// Start with adding an offset the obstacles in the arena
 		std::cout << "obstacle_list:" << std::endl;
@@ -409,8 +409,13 @@ namespace student {
 		std::cout << "obstacle_list_with_offset:" << std::endl;
 		std::vector<Polygon> obstacle_list_with_offset = add_offset_to_obstacles(obstacle_list, offset_value);
 		for (Polygon obstacle : obstacle_list_with_offset){
-			for (Point point : obstacle){
-				std::cout << point.x << " " << point.y << std::endl;
+			for (int i=0; i<obstacle.size(); ++i){
+				std::cout << obstacle[i].x << " " << obstacle[i].y << std::endl;
+				if (i != obstacle.size() - 1){
+					cv::line(plot, cv::Point2f(obstacle[i].x*1000, obstacle[i].y*1000), cv::Point2f(obstacle[i + 1].x*1000, obstacle[i + 1].y*1000), cv::Scalar(255, 0, 0), 2);
+				} else {
+					cv::line(plot, cv::Point2f(obstacle[i].x*1000, obstacle[i].y*1000), cv::Point2f(obstacle[0].x*1000, obstacle[0].y*1000), cv::Scalar(255, 0, 0), 2);
+				}
 			}
 			std::cout << std::endl;
 		}
@@ -423,8 +428,13 @@ namespace student {
 
 		std::cout << "borders_with_offset:" << std::endl;
 		const Polygon borders_with_offset = add_offset_to_borders(borders, -offset_value);
-		for (Point point : borders_with_offset){
-			std::cout << point.x << " " << point.y << std::endl;
+		for (int i=0; i<borders_with_offset.size(); ++i){
+			std::cout << borders_with_offset[i].x << " " << borders_with_offset[i].y << std::endl;
+			if (i != borders_with_offset.size() - 1){
+				cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[i + 1].x*1000, borders_with_offset[i + 1].y*1000), cv::Scalar(255, 0, 0), 2);
+			} else {
+				cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[0].x*1000, borders_with_offset[0].y*1000), cv::Scalar(255, 0, 0), 2);
+			}
 		}
 		std::cout << std::endl;
 
@@ -433,15 +443,29 @@ namespace student {
 		std::cout << "intersection arc arc: ";
 		std::cout << intersection_arc_arc(Point(0, 0), 1, 0, 1, Point(4, 4), 1, 1, 0) << std::endl;
 		std::cout << "intersection segment segment: ";
-		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 0), Point(7, 0)) << std::endl;
-		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 5), Point(7, 3)) << std::endl;
 
-		std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(borders_with_offset, obstacle_list_with_offset);
+		Point a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 0), Point(1, 0), Point(7, 0));
+		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 0), Point(7, 0)) << std::endl;
+		std::cout << a.x << " " << a.y << std::endl;
+		a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 2), Point(1, 0), Point(1, 3));
+		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 2), Point(1, 0), Point(1, 3)) << std::endl;
+		std::cout << a.x << " " << a.y << std::endl;
+		a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 2), Point(1, 5), Point(7, 3));
+		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 5), Point(7, 3)) << std::endl;
+		std::cout << a.x << " " << a.y << std::endl;
+
+		std::vector<Point> sorted_vertices = sort_vertices(obstacle_list_with_offset);
+		std::cout << "sorted_vertices:" << std::endl;
+		for (Point vertex : sorted_vertices){
+			std::cout << vertex.x << " " << vertex.y << std::endl;
+		}
+
+		std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(borders_with_offset, sorted_vertices, obstacle_list_with_offset);
 		std::cout << "segments:" << std::endl;
 		for (std::vector<Point> segment : segments){
 			std::cout << segment[0].x << " " << segment[0].y << std::endl;
 			std::cout << segment[1].x << " " << segment[1].y << std::endl;
-			cv::line(plot, cv::Point2f(segment[0].x*1000, segment[0].y*1000), cv::Point2f(segment[1].x*1000, segment[1].y*100), cv::Scalar(100, 100, 100), 2);
+			cv::line(plot, cv::Point2f(segment[0].x*1000, segment[0].y*1000), cv::Point2f(segment[1].x*1000, segment[1].y*1000), cv::Scalar(100, 100, 100), 2);
 			std::cout << std::endl;
 		}
 
