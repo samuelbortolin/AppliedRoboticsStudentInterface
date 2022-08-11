@@ -189,7 +189,7 @@ std::vector< std::vector<Point> > find_cells(std::vector<Point> boundary, std::v
 	std::vector<Point> temp_points;
 	std::vector< std::vector<Point> > cells;
 	std::vector<int> done;
-	bool extra_search = true; // to allow for adding extra trapazoids when next two segements have same x
+	bool extra_search = true;
 
 	for (int i = 0; i < segments.size(); i++){
 		curr_segment = segments[i];
@@ -254,7 +254,6 @@ std::vector< std::vector<Point> > find_cells(std::vector<Point> boundary, std::v
 					trapezoids.push_back({curr_segment[0], next_vertex, next_segment[1], curr_vertex});
 					if(extra_search){
 						if(next_two_seg_same_x && (next_next_segment[0].x != upper_limit) && (next_next_segment[1].x == lower_limit)){
-							// cout << "--next next seg is not blocked from bottom" << endl;
 							temp_segment[0] = get_cell_centroid({curr_segment[0], curr_vertex}); 
 							temp_segment[1] = get_cell_centroid({next_next_segment[0], next_next_vertex}); 
 							lines_to_check.push_back(temp_segment);
