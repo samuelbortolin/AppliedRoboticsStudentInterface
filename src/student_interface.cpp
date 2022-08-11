@@ -469,6 +469,20 @@ namespace student {
 			std::cout << std::endl;
 		}
 
+		std::vector< std::vector<Point> > cells = find_cells(borders_with_offset, segments, sorted_vertices, obstacle_list_with_offset);
+		std::cout << "cells:" << std::endl;
+		for (std::vector<Point> cell : cells){
+			for (int i=0; i<cell.size(); ++i){
+				std::cout << cell[i].x << " " << cell[i].y << std::endl;
+				if (i != cell.size() - 1){
+					cv::line(plot, cv::Point2f(cell[i].x*1000, cell[i].y*1000), cv::Point2f(cell[i + 1].x*1000, cell[i + 1].y*1000), cv::Scalar(0, 255, 0), 2);
+				} else {
+					cv::line(plot, cv::Point2f(cell[i].x*1000, cell[i].y*1000), cv::Point2f(cell[0].x*1000, cell[0].y*1000), cv::Scalar(0, 255, 0), 2);
+				}
+			}
+			std::cout << std::endl;
+		}
+
 		cv::imshow("VCD", plot);
 		cv::waitKey(0);
 
