@@ -281,8 +281,7 @@ std::vector< std::vector<Point> > find_cells(std::vector<Point> boundary, std::v
 					group.push_back(1);
 					trapezoids.push_back({curr_vertex, next_segment[0], next_vertex, curr_segment[1]});
 					trapezoids.push_back({curr_vertex, next_vertex, next_segment[1], curr_segment[1]});
-				}
-				else if(next_segment[0].y != upper_limit) {
+				} else if(next_segment[0].y != upper_limit) {
 					temp_segment[0] = get_cell_centroid({curr_segment[1], curr_vertex}); 
 					temp_segment[1] = get_cell_centroid({next_segment[0], next_vertex}); 
 					lines_to_check.push_back(temp_segment);
@@ -297,8 +296,7 @@ std::vector< std::vector<Point> > find_cells(std::vector<Point> boundary, std::v
 							trapezoids.push_back({curr_vertex, next_next_vertex, next_next_segment[1], curr_segment[1]});              
 						}
 					}
-				}
-				else if(next_segment[1].y != lower_limit) {
+				} else if(next_segment[1].y != lower_limit) {
 					temp_segment[0] = get_cell_centroid({curr_segment[1], curr_vertex}); 
 					temp_segment[1] = get_cell_centroid({next_segment[1], next_vertex}); 
 					lines_to_check.push_back(temp_segment);
@@ -313,8 +311,7 @@ std::vector< std::vector<Point> > find_cells(std::vector<Point> boundary, std::v
 							trapezoids.push_back({curr_vertex, next_next_segment[0], next_next_vertex,curr_segment[1]});              
 						}
 					}
-				}
-				else {
+				} else {
 					temp_segment[0] = get_cell_centroid({curr_segment[1], curr_vertex}); 
 					temp_segment[1] = next_vertex;
 					lines_to_check.push_back(temp_segment);
