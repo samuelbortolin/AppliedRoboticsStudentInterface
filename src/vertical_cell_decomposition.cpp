@@ -33,7 +33,7 @@ std::vector <std::tuple<Point, int> > sort_vertices(std::vector< std::vector<Poi
 						}
 					}
 				}
-				if (add_to_list == 1){
+				if (add_to_list){
 					sorted_vertices[curr_vertex] = std::make_tuple(obstacles[obj][vertex], obj);
 				}
 			}
