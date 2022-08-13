@@ -420,6 +420,8 @@ namespace student {
 			std::cout << std::endl;
 		}
 
+		// TODO: merge obstacles
+
 		std::cout << "borders:" << std::endl;
 		for (Point point : borders){
 			std::cout << point.x << " " << point.y << std::endl;
@@ -515,6 +517,12 @@ namespace student {
 		cv::imshow("VCD", plot);
 		cv::waitKey(0);
 
-		//throw std::logic_error( "STUDENT FUNCTION - PLAN PATH - NOT FULLY IMPLEMENTED" );
+		// TODO: merge cells
+
+		// TODO: get roadmap from cells
+
+		// TODO: from a bfs find the best feasibile path for all robots
+
+		// TODO: use multi-point dubins to smooth the paths
 	}
 }

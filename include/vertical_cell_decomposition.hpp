@@ -44,11 +44,5 @@ Point get_cell_centroid(std::vector<Point> cell);
 std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector< std::vector<Point> > cells, std::vector< std::vector<Point> > obstacles);
 
 
-/*!
-* Run the BFS algorithms in order to obtain all the possible paths that leads to the target.
-* @param[in]  adjacency_matrix            The adjacency matrix of the roadmap.
-* @param[in]  source                      The index of the source node.
-* @param[in]  target                      The index of the target node.
-*/
-std::vector< std::vector<int> > bfs(std::vector< std::vector<int> > adjacency_matrix, int source, int target);
+// TODO: add a method to merge overlapping cells
 

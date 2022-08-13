@@ -21,6 +21,8 @@ add_library(student SHARED
 	include/clipper/clipper.cpp
 	src/intersection.cpp
 	src/vertical_cell_decomposition.cpp
+	src/dubins.cpp
+	src/planning.cpp
 )
 
 target_link_libraries(

@@ -10,6 +10,9 @@
 std::vector<Polygon> add_offset_to_obstacles(const std::vector<Polygon>& obstacle_list, float offset_value);
 
 
+// TODO: add a method to merge overlapping obstacles
+
+
 /*!
 * Add an offset to the borders of the arena to account for the size of the robot
 * @param[in]  borders        The border of the arena

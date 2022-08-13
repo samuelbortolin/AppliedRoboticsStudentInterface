@@ -46,3 +46,6 @@ bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
 */
 Point get_intersection_point_segment_segment(Point p1, Point p2, Point p3, Point p4);
 
+
+// TODO: add a method to check robot path intersections with obstacles or with each other
+
