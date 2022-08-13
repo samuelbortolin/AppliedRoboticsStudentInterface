@@ -399,7 +399,7 @@ namespace student {
 
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
-		// Start with adding an offset the obstacles in the arena
+		// Add offset the obstacles in the arena
 		std::cout << "obstacle_list:" << std::endl;
 		for (Polygon obstacle : obstacle_list){
 			for (Point point : obstacle){
@@ -424,6 +424,7 @@ namespace student {
 
 		// TODO: merge obstacles
 
+		// Add offset the borders of the arena
 		std::cout << "borders:" << std::endl;
 		for (Point point : borders){
 			std::cout << point.x << " " << point.y << std::endl;
@@ -445,61 +446,63 @@ namespace student {
 		cv::imshow("VCD", plot);
 		cv::waitKey(5000);
 
-		std::cout << "intersection arc segment: ";
-		std::cout << intersection_arc_segment(Point(0, 0), 1, 0, M_PI, Point(0, 0), Point(0, 2)) << std::endl;
-		std::cout << "intersection arc arc: ";
-		std::cout << intersection_arc_arc(Point(0, 0), 1, 0, 1, Point(4, 4), 1, 1, 0) << std::endl;
-		std::cout << "intersection segment segment: ";
+		// std::cout << "intersection arc segment: ";
+		// std::cout << intersection_arc_segment(Point(0, 0), 1, 0, M_PI, Point(0, 0), Point(0, 2)) << std::endl;
+		// std::cout << "intersection arc arc: ";
+		// std::cout << intersection_arc_arc(Point(0, 0), 1, 0, 1, Point(4, 4), 1, 1, 0) << std::endl;
+		// std::cout << "intersection segment segment: ";
 
-		Point a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 0), Point(1, 0), Point(7, 0));
-		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 0), Point(7, 0)) << std::endl;
-		std::cout << a.x << " " << a.y << std::endl;
-		a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 2), Point(1, 0), Point(1, 3));
-		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 2), Point(1, 0), Point(1, 3)) << std::endl;
-		std::cout << a.x << " " << a.y << std::endl;
-		a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 2), Point(1, 5), Point(7, 3));
-		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 5), Point(7, 3)) << std::endl;
-		std::cout << a.x << " " << a.y << std::endl;
+		// Point a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 0), Point(1, 0), Point(7, 0));
+		// std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 0), Point(7, 0)) << std::endl;
+		// std::cout << a.x << " " << a.y << std::endl;
+		// a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 2), Point(1, 0), Point(1, 3));
+		// std::cout << intersection_segment_segment(Point(0, 0), Point(2, 2), Point(1, 0), Point(1, 3)) << std::endl;
+		// std::cout << a.x << " " << a.y << std::endl;
+		// a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 2), Point(1, 5), Point(7, 3));
+		// std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 5), Point(7, 3)) << std::endl;
+		// std::cout << a.x << " " << a.y << std::endl;
 
+		// Sort vertices
 		std::vector <std::tuple<Point, int> > sorted_vertices = sort_vertices(obstacle_list_with_offset);
 		std::cout << "sorted_vertices:" << std::endl;
 		for (std::tuple<Point, int> vertex : sorted_vertices){
 			std::cout << std::get<0>(vertex).x << " " << std::get<0>(vertex).y << std::endl;
 		}
 
-		float lower_limit = -1;
-		float upper_limit = -1;
+		// float lower_limit = -1;
+		// float upper_limit = -1;
 
-		for (const Point& pt : borders_with_offset){
-			if (lower_limit == -1){
-				lower_limit = pt.y;
-			} else {
-				if (pt.y < lower_limit){
-					lower_limit = pt.y;
-				}
-			}
+		// for (const Point& pt : borders_with_offset){
+		// 	if (lower_limit == -1){
+		// 		lower_limit = pt.y;
+		// 	} else {
+		// 		if (pt.y < lower_limit){
+		// 			lower_limit = pt.y;
+		// 		}
+		// 	}
 
-			if (upper_limit == -1){
-				upper_limit = pt.y;
-			} else {
-				if (pt.y > upper_limit){
-					upper_limit = pt.y;
-				}
-			}
-		}
+		// 	if (upper_limit == -1){
+		// 		upper_limit = pt.y;
+		// 	} else {
+		// 		if (pt.y > upper_limit){
+		// 			upper_limit = pt.y;
+		// 		}
+		// 	}
+		// }
 
-		std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(sorted_vertices, obstacle_list_with_offset, lower_limit, upper_limit);
-		std::cout << "segments:" << std::endl;
-		for (std::vector<Point> segment : segments){
-			std::cout << segment[0].x << " " << segment[0].y << std::endl;
-			std::cout << segment[1].x << " " << segment[1].y << std::endl;
-			cv::line(plot, cv::Point2f(segment[0].x*1000, segment[0].y*1000), cv::Point2f(segment[1].x*1000, segment[1].y*1000), cv::Scalar(100, 100, 100), 2);
-			std::cout << std::endl;
-		}
+		// std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(sorted_vertices, obstacle_list_with_offset, lower_limit, upper_limit);
+		// std::cout << "segments:" << std::endl;
+		// for (std::vector<Point> segment : segments){
+		// 	std::cout << segment[0].x << " " << segment[0].y << std::endl;
+		// 	std::cout << segment[1].x << " " << segment[1].y << std::endl;
+		// 	cv::line(plot, cv::Point2f(segment[0].x*1000, segment[0].y*1000), cv::Point2f(segment[1].x*1000, segment[1].y*1000), cv::Scalar(100, 100, 100), 2);
+		// 	std::cout << std::endl;
+		// }
 
-		cv::imshow("VCD", plot);
-		cv::waitKey(5000);
+		// cv::imshow("VCD", plot);
+		// cv::waitKey(5000);
 
+		// Find VCD cells
 		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, obstacle_list_with_offset);
 		std::cout << "cells:" << std::endl;
 		for (Polygon cell : cells){
@@ -517,11 +520,27 @@ namespace student {
 		}
 
 		cv::imshow("VCD", plot);
-		cv::waitKey(0);
+		cv::waitKey(5000);
 
 		// TODO: merge cells
 
-		// TODO: get roadmap from cells
+		// Get roadmap from cells
+		std::tuple< std::vector<Point>, std::vector< std::vector<int> > > roadmap = create_roadmap(cells);
+		std::vector<Point> nodes = std::get<0>(roadmap);
+		std::cout << "nodes:" << std::endl;
+		for (const Point& node : nodes){
+			std::cout << node.x << " " << node.y << std::endl;
+			cv::circle(plot, cv::Point2f(node.x*1000, node.y*1000), 2, cv::Scalar(255, 0, 255), 2);
+		}
+		std::vector< std::vector<int> > edges = std::get<1>(roadmap);
+		std::cout << "edges:" << std::endl;
+		for (const std::vector<int> edge : edges){
+			std::cout << edge[0] << " " << edge[1] << std::endl;
+			cv::line(plot, cv::Point2f(nodes[edge[0]].x*1000, nodes[edge[0]].y*1000), cv::Point2f(nodes[edge[1]].x*1000, nodes[edge[1]].y*1000), cv::Scalar(255, 255, 0), 2);
+		}
+
+		cv::imshow("VCD", plot);
+		cv::waitKey(0);
 
 		// TODO: from a bfs find the best feasibile path for all robots
 

@@ -7,7 +7,7 @@
 * Sort vertices of polygons.
 * @param[in]  obstacles           The obstacles.
 */
-std::vector <std::tuple<Point, int> > sort_vertices(std::vector< std::vector<Point> > obstacles);
+std::vector< std::tuple<Point, int> > sort_vertices(std::vector<Polygon> obstacles);
 
 
 /*!
@@ -26,7 +26,7 @@ std::vector< std::vector<Point> > create_segments_vertical_decomposition(std::ve
 * @param[in]  sorted_vertices     The sorted vertices.
 * @param[in]  obstacles           The obstacles.
 */
-std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector< std::vector<Point> > obstacles);
+std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector<Polygon> obstacles);
 
 
 /*!
@@ -44,9 +44,8 @@ std::vector<Polygon> merge_cells(std::vector<Polygon> cells);
 
 
 /*!
-* Create the roadmap returning the list of centroids and the adjacency matrix.
+* Create the roadmap returning the list of nodes and the adjacency matrix describing how they are connected to each other.
 * @param[in]  cells            The cells generated from the VCD algorithm.
-* @param[in]  obstacles        The obstacless.
 */
-std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector< std::vector<Point> > cells, std::vector< std::vector<Point> > obstacles);
+std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector<Polygon> cells);
 

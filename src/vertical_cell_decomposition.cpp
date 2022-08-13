@@ -1,7 +1,7 @@
 #include "vertical_cell_decomposition.hpp"
 
 
-std::vector <std::tuple<Point, int> > sort_vertices(std::vector< std::vector<Point> > obstacles){
+std::vector< std::tuple<Point, int> > sort_vertices(std::vector<Polygon> obstacles){
 	float vertices_num;
 	for (int i = 0; i < obstacles.size(); i++){
 		for (const auto &point : obstacles[i]){
@@ -119,7 +119,7 @@ std::vector< std::vector<Point> > create_segments_vertical_decomposition(std::ve
 }
 
 
-std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector< std::vector<Point> > obstacles){
+std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector<Polygon> obstacles){
 	float lower_limit = -1;
 	float upper_limit = -1;
 	float left_limit = -1;
@@ -161,7 +161,7 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 
 	std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(sorted_vertices, obstacles, lower_limit, upper_limit);
 
-	std::vector< std::vector<Point> > cells;
+	std::vector<Polygon> cells;
 	Point temp_point = Point(-1, -1);
 	Point curr_vertex;
 	Point next_vertex;
@@ -344,7 +344,7 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 		}
 	}
 
-	std::vector<Point> new_cell = {};
+	Polygon new_cell = {};
 	if(left_limit != std::get<0>(sorted_vertices[0]).x) {
 		new_cell.push_back(Point(left_limit, lower_limit));
 
@@ -403,6 +403,131 @@ Point get_cell_centroid(Polygon cell){
 // TODO: add the method to merge overlapping cells
 // std::vector<Polygon> merge_cells(std::vector<Polygon> cells);
 
-// TODO: add the method to create the roadmap
-// std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector< std::vector<Point> > cells, std::vector< std::vector<Point> > obstacles);
+
+std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector<Polygon> cells){
+	std::vector<int> same_boundary;
+	std::vector<Point> graph_vertices;
+	std::vector< std::vector<int> > graph_edges;
+	Point centroid_vertex;
+	Point curr_centroid_vertex;
+	std::vector<int> temp_edge;
+	std::vector<Point> temp_points;
+	bool inside;
+	int place; 
+	int place1;
+	int place2;
+	int use; 
+	int n;
+
+	// for each quad cell find the neigbour cells (that have a common boundary)
+	for (int cell1 = 0; cell1 < cells.size(); cell1++){
+		same_boundary = {};
+		//compare to the rest of the cells if it is not the same cell
+		for (int cell2 = 0; cell2 < cells.size(); cell2++){
+			if (cell1 != cell2){
+				if ((cells[cell1][1].x == cells[cell2][0].x) && 
+					((cells[cell1][2].y == cells[cell2][0].y || cells[cell1][2].y == cells[cell2][3].y) ||
+					(cells[cell1][1].y == cells[cell2][0].y || cells[cell1][1].y == cells[cell2][3].y))){
+					same_boundary.push_back(cell2);
+				}
+			}
+		}
+
+		temp_points = {};
+		for (int pt = 0; pt < 4; pt++){
+			temp_points.push_back(cells[cell1][pt]);
+		}
+		centroid_vertex = get_cell_centroid(temp_points);
+		inside = false;
+		for (int vertex = 0; vertex < graph_vertices.size(); vertex++){
+			if (centroid_vertex.x == graph_vertices[vertex].x && centroid_vertex.y == graph_vertices[vertex].y){ 
+				inside = true;
+				place = vertex;
+				break;
+			}
+		}
+		if (!inside){
+			graph_vertices.push_back(centroid_vertex); 
+			place = -1;
+		}
+
+		if (same_boundary.size() == 1){
+			temp_points = {};
+			temp_points.push_back(cells[cell1][1]);
+			temp_points.push_back(cells[cell1][2]);
+			graph_vertices.push_back(get_cell_centroid(temp_points));
+			n = graph_vertices.size() - 1;
+
+			if (place != -1){
+				temp_edge = {place, n};
+				graph_edges.push_back(temp_edge);
+			} else {
+				temp_edge = {n-1, n};
+				graph_edges.push_back(temp_edge);
+			}
+
+			temp_points = {};
+			for (int pt = 0; pt < 4; pt++){
+				temp_points.push_back(cells[same_boundary[0]][pt]);
+			}
+			curr_centroid_vertex = get_cell_centroid(temp_points);
+			inside = false;
+			for (int vertex = 0; vertex < graph_vertices.size(); vertex++){
+				if (curr_centroid_vertex.x == graph_vertices[vertex].x && curr_centroid_vertex.y == graph_vertices[vertex].y){ 
+					inside = true;
+					place2 = vertex;
+					break;
+				}
+			}
+			if (!inside){ 
+				place2 = -1;
+			}
+			if (place2 == -1){
+				graph_vertices.push_back(curr_centroid_vertex);
+				temp_edge = {n, n+1};
+				graph_edges.push_back(temp_edge);
+			} else {
+				temp_edge = {n, place2};
+				graph_edges.push_back(temp_edge);
+			}
+		} else if (same_boundary.size() > 1){
+			n = graph_vertices.size() - 1;
+			if (place != -1){
+				use = place;
+			} else {
+				use = n;
+			}
+
+			for (int i = 0; i < same_boundary.size(); i ++){
+				temp_points.clear();
+				for(int pt = 0; pt < 4; pt++){
+					temp_points.push_back(cells[same_boundary[i]][pt]);
+				}
+				curr_centroid_vertex = get_cell_centroid(temp_points);
+				temp_points = {};
+				temp_points.push_back(cells[same_boundary[i]][0]);
+				temp_points.push_back(cells[same_boundary[i]][3]);
+				graph_vertices.push_back(get_cell_centroid(temp_points));
+				place1 = graph_vertices.size() - 1;
+				inside = false;
+				for (int vertex = 0; vertex < graph_vertices.size(); vertex++){
+					if (curr_centroid_vertex.x == graph_vertices[vertex].x && curr_centroid_vertex.y == graph_vertices[vertex].y){ 
+						inside = true;
+						place2 = vertex;
+					}
+				}
+				if (!inside){
+					graph_vertices.push_back(curr_centroid_vertex);
+					place2 = graph_vertices.size() - 1;
+				}
+				temp_edge = {use, place1};
+				graph_edges.push_back(temp_edge);
+				temp_edge = {place1, place2};
+				graph_edges.push_back(temp_edge);
+			}
+		}
+	}
+	// TODO: not really an adjacency matrix, but maybe we can contruct it as it is documented
+	return std::make_tuple(graph_vertices, graph_edges);
+}
 
