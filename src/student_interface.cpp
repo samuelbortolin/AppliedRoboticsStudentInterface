@@ -395,7 +395,7 @@ namespace student {
 		// Parameters
 		float offset_value = 50.0; // The offset value
 
-		cv::Mat plot(2000, 2000, CV_8UC3, cv::Scalar(255,255,255));
+		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
 		// Start with adding an offset the obstacles in the arena
 		std::cout << "obstacle_list:" << std::endl;
@@ -438,6 +438,9 @@ namespace student {
 		}
 		std::cout << std::endl;
 
+		cv::imshow("VCD", plot);
+		cv::waitKey(5000);
+
 		std::cout << "intersection arc segment: ";
 		std::cout << intersection_arc_segment(Point(0, 0), 1, 0, M_PI, Point(0, 0), Point(0, 2)) << std::endl;
 		std::cout << "intersection arc arc: ";
@@ -454,13 +457,34 @@ namespace student {
 		std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 5), Point(7, 3)) << std::endl;
 		std::cout << a.x << " " << a.y << std::endl;
 
-		std::vector<Point> sorted_vertices = sort_vertices(obstacle_list_with_offset);
+		std::vector <std::tuple<Point, int> > sorted_vertices = sort_vertices(obstacle_list_with_offset);
 		std::cout << "sorted_vertices:" << std::endl;
-		for (Point vertex : sorted_vertices){
-			std::cout << vertex.x << " " << vertex.y << std::endl;
+		for (std::tuple<Point, int> vertex : sorted_vertices){
+			std::cout << std::get<0>(vertex).x << " " << std::get<0>(vertex).y << std::endl;
 		}
 
-		std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(borders_with_offset, sorted_vertices, obstacle_list_with_offset);
+		float lower_limit = -1;
+		float upper_limit = -1;
+
+		for (const Point& pt : borders_with_offset){
+			if (lower_limit == -1){
+				lower_limit = pt.y;
+			} else {
+				if (pt.y < lower_limit){
+					lower_limit = pt.y;
+				}
+			}
+
+			if (upper_limit == -1){
+				upper_limit = pt.y;
+			} else {
+				if (pt.y > upper_limit){
+					upper_limit = pt.y;
+				}
+			}
+		}
+
+		std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(sorted_vertices, obstacle_list_with_offset, lower_limit, upper_limit);
 		std::cout << "segments:" << std::endl;
 		for (std::vector<Point> segment : segments){
 			std::cout << segment[0].x << " " << segment[0].y << std::endl;
@@ -469,7 +493,10 @@ namespace student {
 			std::cout << std::endl;
 		}
 
-		std::vector< std::vector<Point> > cells = find_cells(borders_with_offset, segments, sorted_vertices, obstacle_list_with_offset);
+		cv::imshow("VCD", plot);
+		cv::waitKey(5000);
+
+		std::vector< std::vector<Point> > cells = find_cells(borders_with_offset, sorted_vertices, obstacle_list_with_offset);
 		std::cout << "cells:" << std::endl;
 		for (std::vector<Point> cell : cells){
 			for (int i=0; i<cell.size(); ++i){
@@ -481,6 +508,8 @@ namespace student {
 				}
 			}
 			std::cout << std::endl;
+			Point cell_centroid = get_cell_centroid(cell);
+			cv::circle(plot, cv::Point2f(cell_centroid.x*1000, cell_centroid.y*1000), 2, cv::Scalar(0, 0, 255), 2);
 		}
 
 		cv::imshow("VCD", plot);
