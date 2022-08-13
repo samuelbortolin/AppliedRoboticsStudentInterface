@@ -5,7 +5,7 @@
 
 
 /*!
-* Run the BFS algorithms in order to obtain all the possible paths that leads to the target. // TODO: probably we just need the first that ensures that the paths is ok for all robots
+* Run the BFS algorithm in order to obtain all the possible paths that leads to the target. // TODO: probably we just need the first that ensures that the paths is ok for all robots
 * @param[in]  adjacency_matrix            The adjacency matrix of the roadmap.
 * @param[in]  source                      The index of the source node.
 * @param[in]  target                      The index of the target node.

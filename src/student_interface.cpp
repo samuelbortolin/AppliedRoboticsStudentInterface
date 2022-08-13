@@ -12,6 +12,8 @@
 #include "offset.hpp"
 #include "intersection.hpp"
 #include "vertical_cell_decomposition.hpp"
+#include "dubins.hpp"
+#include "planning.hpp"
 
 
 namespace student {
@@ -498,9 +500,9 @@ namespace student {
 		cv::imshow("VCD", plot);
 		cv::waitKey(5000);
 
-		std::vector< std::vector<Point> > cells = find_cells(borders_with_offset, sorted_vertices, obstacle_list_with_offset);
+		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, obstacle_list_with_offset);
 		std::cout << "cells:" << std::endl;
-		for (std::vector<Point> cell : cells){
+		for (Polygon cell : cells){
 			for (int i=0; i<cell.size(); ++i){
 				std::cout << cell[i].x << " " << cell[i].y << std::endl;
 				if (i != cell.size() - 1){

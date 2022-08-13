@@ -32,6 +32,10 @@ std::vector<Polygon> add_offset_to_obstacles(const std::vector<Polygon>& obstacl
 }
 
 
+// TODO: add the method to merge overlapping obstacles
+// std::vector<Polygon> merge_obstacles(const std::vector<Polygon>& obstacle_list);
+
+
 Polygon add_offset_to_borders(const Polygon& borders, float offset_value){
 	Polygon borders_with_offset;
 	ClipperLib::Path clipper_border;

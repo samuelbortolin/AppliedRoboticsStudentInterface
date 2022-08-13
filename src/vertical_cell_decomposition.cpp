@@ -119,7 +119,7 @@ std::vector< std::vector<Point> > create_segments_vertical_decomposition(std::ve
 }
 
 
-std::vector< std::vector<Point> > find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector< std::vector<Point> > obstacles){
+std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector< std::vector<Point> > obstacles){
 	float lower_limit = -1;
 	float upper_limit = -1;
 	float left_limit = -1;
@@ -382,7 +382,7 @@ std::vector< std::vector<Point> > find_cells(std::vector<Point> boundary, std::v
 }
 
 
-Point get_cell_centroid(std::vector<Point> cell){
+Point get_cell_centroid(Polygon cell){
 	int cell_vertices = cell.size();
 
 	if (cell_vertices == 0){
@@ -398,4 +398,11 @@ Point get_cell_centroid(std::vector<Point> cell){
 
 	return Point(sum_over_x/float(cell_vertices), sum_over_y/float(cell_vertices));
 }
+
+
+// TODO: add the method to merge overlapping cells
+// std::vector<Polygon> merge_cells(std::vector<Polygon> cells);
+
+// TODO: add the method to create the roadmap
+// std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector< std::vector<Point> > cells, std::vector< std::vector<Point> > obstacles);
 

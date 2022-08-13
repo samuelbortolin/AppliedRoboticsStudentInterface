@@ -26,14 +26,21 @@ std::vector< std::vector<Point> > create_segments_vertical_decomposition(std::ve
 * @param[in]  sorted_vertices     The sorted vertices.
 * @param[in]  obstacles           The obstacles.
 */
-std::vector< std::vector<Point> > find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector< std::vector<Point> > obstacles);
+std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector< std::vector<Point> > obstacles);
 
 
 /*!
 * Get the cell centroid.
 * @param[in]  cell            The cell for which return the cenntroid.
 */
-Point get_cell_centroid(std::vector<Point> cell);
+Point get_cell_centroid(Polygon cell);
+
+
+/*!
+* Merge cells.
+* @param[in]  cells            The cells generated from the VCD algorithm.
+*/
+std::vector<Polygon> merge_cells(std::vector<Polygon> cells);
 
 
 /*!
@@ -42,7 +49,4 @@ Point get_cell_centroid(std::vector<Point> cell);
 * @param[in]  obstacles        The obstacless.
 */
 std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector< std::vector<Point> > cells, std::vector< std::vector<Point> > obstacles);
-
-
-// TODO: add a method to merge overlapping cells
 
