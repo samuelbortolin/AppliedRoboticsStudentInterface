@@ -61,7 +61,7 @@ bool intersection_arc_segment(Point a, double r, double s, double e, Point s2, P
 	return false;
 }
 
-//function to decide an angle within an arc (not used)
+// Decide if angle within an arc
 bool intersection_arc_pass(float theta, double s, double e){
 	if (s < e && theta >= s && theta <= e)
 	{
@@ -81,8 +81,7 @@ float abs(float value){
 }
 
 // Normalize an angle in range [0,2*pi)
-float mod2Pi(float angle)
-{
+float mod2Pi(float angle){
     return angle - 2 * M_PI * floor(angle / (2 * M_PI));
 }
 
@@ -130,8 +129,8 @@ bool intersection_arc_arc(Point a1, double r1, double s1, double e1, Point a2, d
 }
 
 
-bool intersection_segment_segment(Point p1, Point p2, Point p3, Point p4){
-	Point intersection = get_intersection_point_segment_segment(p1, p2, p3, p4);
+bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2){
+	Point intersection = get_intersection_point_segment_segment(s1, e1, s2, e2);
 	if (intersection.x == -1 && intersection.y == -1){
 		return false;
 	} else {
@@ -141,54 +140,54 @@ bool intersection_segment_segment(Point p1, Point p2, Point p3, Point p4){
 }
 
 
-Point get_intersection_point_segment_segment(Point p1, Point p2, Point p3, Point p4){
-	float det = (p4.x-p3.x)*(p1.y-p2.y) - (p1.x-p2.x)*(p4.y-p3.y);
+Point get_intersection_point_segment_segment(Point s1, Point e1, Point s2, Point e2){
+	float det = (e2.x-s2.x)*(s1.y-e1.y) - (s1.x-e1.x)*(e2.y-s2.y);
 	if (det == 0){
 		// check if the segments are on the same line
-		if (p2.x - p1.x == 0){
-			if (p3.x == p1.x){
-				// p1 or p2 is inside p3 & p4 or vice versa
-				if ((p4.y >= p1.y && p1.y >= p3.y) || 
-					(p3.y >= p1.y && p1.y >= p4.y)){
-					return p1;
-				} else if ((p4.y >= p2.y && p2.y >= p3.y) || 
-					(p3.y >= p2.y && p2.y >= p4.y)){
-					return p2;
-				} else if ((p1.y >= p3.y && p3.y >= p2.y) || 
-					(p2.y >= p3.y && p3.y >= p1.y)){
-					return p3;
-				} else if ((p1.y >= p4.y && p4.y >= p2.y) || 
-					(p2.y >= p4.y && p4.y >= p1.y)){
-					return p4;
+		if (e1.x - s1.x == 0){
+			if (s2.x == s1.x){
+				// s1 or e1 is inside s2 & e2 or vice versa
+				if ((e2.y >= s1.y && s1.y >= s2.y) || 
+					(s2.y >= s1.y && s1.y >= e2.y)){
+					return s1;
+				} else if ((e2.y >= e1.y && e1.y >= s2.y) || 
+					(s2.y >= e1.y && e1.y >= e2.y)){
+					return e1;
+				} else if ((s1.y >= s2.y && s2.y >= e1.y) || 
+					(e1.y >= s2.y && s2.y >= s1.y)){
+					return s2;
+				} else if ((s1.y >= e2.y && e2.y >= e1.y) || 
+					(e1.y >= e2.y && e2.y >= s1.y)){
+					return e2;
 				} else {			
 					return Point(-1, -1);
 				}
 			}
 		} else {
-			float m = (p2.y - p1.y)/(p2.x - p1.x);
-			float q = p2.y - m*p2.x;
-			if (p3.y == m*p3.x + q){
-				// p1 or p2 is inside p3 & p4 or vice versa
-				if ((p4.x >= p1.x && p1.x >= p3.x && p4.y >= p1.y && p1.y >= p3.y) || 
-					(p3.x >= p1.x && p1.x >= p4.x && p3.y >= p1.y && p1.y >= p4.y) || 
-					(p4.x <= p1.x && p1.x <= p3.x && p4.y >= p1.y && p1.y >= p3.y) || 
-					(p3.x <= p1.x && p1.x <= p4.x && p3.y >= p1.y && p1.y >= p4.y)){
-					return p1;
-				} else if ((p4.x >= p2.x && p2.x >= p3.x && p4.y >= p2.y && p2.y >= p3.y) || 
-					(p3.x >= p2.x && p2.x >= p4.x && p3.y >= p2.y && p2.y >= p4.y) || 
-					(p4.x <= p2.x && p2.x <= p3.x && p4.y >= p2.y && p2.y >= p3.y) || 
-					(p3.x <= p2.x && p2.x <= p4.x && p3.y >= p2.y && p2.y >= p4.y)){
-					return p2;
-				} else if ((p1.x >= p3.x && p3.x >= p2.x && p1.y >= p3.y && p3.y >= p2.y) || 
-					(p2.x >= p3.x && p3.x >= p1.x && p2.y >= p3.y && p3.y >= p1.y) || 
-					(p1.x <= p3.x && p3.x <= p2.x && p1.y >= p3.y && p3.y >= p2.y) || 
-					(p2.x <= p3.x && p3.x <= p1.x && p2.y >= p3.y && p3.y >= p1.y)){
-					return p3;
-				} else if ((p1.x >= p4.x && p4.x >= p2.x && p1.y >= p4.y && p4.y >= p2.y) || 
-					(p2.x >= p4.x && p4.x >= p1.x && p2.y >= p4.y && p4.y >= p1.y) || 
-					(p1.x <= p4.x && p4.x <= p2.x && p1.y >= p4.y && p4.y >= p2.y) || 
-					(p2.x <= p4.x && p4.x <= p1.x && p2.y >= p4.y && p4.y >= p1.y)){
-					return p4;
+			float m = (e1.y - s1.y)/(e1.x - s1.x);
+			float q = e1.y - m*e1.x;
+			if (s2.y == m*s2.x + q){
+				// s1 or e1 is inside s2 & e2 or vice versa
+				if ((e2.x >= s1.x && s1.x >= s2.x && e2.y >= s1.y && s1.y >= s2.y) || 
+					(s2.x >= s1.x && s1.x >= e2.x && s2.y >= s1.y && s1.y >= e2.y) || 
+					(e2.x <= s1.x && s1.x <= s2.x && e2.y >= s1.y && s1.y >= s2.y) || 
+					(s2.x <= s1.x && s1.x <= e2.x && s2.y >= s1.y && s1.y >= e2.y)){
+					return s1;
+				} else if ((e2.x >= e1.x && e1.x >= s2.x && e2.y >= e1.y && e1.y >= s2.y) || 
+					(s2.x >= e1.x && e1.x >= e2.x && s2.y >= e1.y && e1.y >= e2.y) || 
+					(e2.x <= e1.x && e1.x <= s2.x && e2.y >= e1.y && e1.y >= s2.y) || 
+					(s2.x <= e1.x && e1.x <= e2.x && s2.y >= e1.y && e1.y >= e2.y)){
+					return e1;
+				} else if ((s1.x >= s2.x && s2.x >= e1.x && s1.y >= s2.y && s2.y >= e1.y) || 
+					(e1.x >= s2.x && s2.x >= s1.x && e1.y >= s2.y && s2.y >= s1.y) || 
+					(s1.x <= s2.x && s2.x <= e1.x && s1.y >= s2.y && s2.y >= e1.y) || 
+					(e1.x <= s2.x && s2.x <= s1.x && e1.y >= s2.y && s2.y >= s1.y)){
+					return s2;
+				} else if ((s1.x >= e2.x && e2.x >= e1.x && s1.y >= e2.y && e2.y >= e1.y) || 
+					(e1.x >= e2.x && e2.x >= s1.x && e1.y >= e2.y && e2.y >= s1.y) || 
+					(s1.x <= e2.x && e2.x <= e1.x && s1.y >= e2.y && e2.y >= e1.y) || 
+					(e1.x <= e2.x && e2.x <= s1.x && e1.y >= e2.y && e2.y >= s1.y)){
+					return e2;
 				} else {			
 					return Point(-1, -1);
 				}
@@ -197,14 +196,35 @@ Point get_intersection_point_segment_segment(Point p1, Point p2, Point p3, Point
 			}
 		}
 	}
-	float t = ((p3.y-p4.y)*(p1.x-p3.x) + (p4.x-p3.x)*(p1.y-p3.y)) / det;
-	float u = ((p1.y-p2.y)*(p1.x-p3.x) + (p2.x-p1.x)*(p1.y-p3.y)) / det;
+	float t = ((s2.y-e2.y)*(s1.x-s2.x) + (e2.x-s2.x)*(s1.y-s2.y)) / det;
+	float u = ((s1.y-e1.y)*(s1.x-s2.x) + (e1.x-s1.x)*(s1.y-s2.y)) / det;
 
-	Point s1 = Point(p1.x + t*(p2.x - p1.x), p1.y + t*(p2.y - p1.y));
-	Point s2 = Point(p3.x + u*(p4.x - p3.x), p3.y + u*(p4.y - p3.y));
-	if (s1.x == s2.x && s1.y == s2.y && t >= 0 && t <= 1 && u >= 0 && u <= 1){
+	Point p1 = Point(s1.x + t*(e1.x - s1.x), s1.y + t*(e1.y - s1.y));
+	Point p2 = Point(s2.x + u*(e2.x - s2.x), s2.y + u*(e2.y - s2.y));
+	if (p1.x == p2.x && p1.y == p2.y && t >= 0 && t <= 1 && u >= 0 && u <= 1){
 		return s1;
 	}
 	return Point(-1, -1);
+}
+
+
+bool get_intersection_segment_obstacles(Point s1, Point e1, std::vector<Polygon> obstacles){
+	bool intersection = false;
+	for (int obs = 0; obs < obstacles.size(); obs++){
+		for (int vertex = 0; vertex < obstacles[obs].size(); vertex++){
+			if (vertex != obstacles[obs].size() - 1){
+				if (intersection_segment_segment(s1, e1, obstacles[obs][vertex], obstacles[obs][vertex + 1])){
+					intersection = true;
+					return intersection;
+				}
+			} else {
+				if (intersection_segment_segment(s1, e1, obstacles[obs][vertex], obstacles[obs][0])){
+					intersection = true;
+					return intersection;
+				}
+			}
+		}
+	}
+	return intersection;
 }
 

@@ -525,18 +525,23 @@ namespace student {
 		// TODO: merge cells
 
 		// Get roadmap from cells
-		std::tuple< std::vector<Point>, std::vector< std::vector<int> > > roadmap = create_roadmap(cells);
+		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, obstacle_list_with_offset);
 		std::vector<Point> nodes = std::get<0>(roadmap);
 		std::cout << "nodes:" << std::endl;
 		for (const Point& node : nodes){
 			std::cout << node.x << " " << node.y << std::endl;
 			cv::circle(plot, cv::Point2f(node.x*1000, node.y*1000), 2, cv::Scalar(255, 0, 255), 2);
 		}
-		std::vector< std::vector<int> > edges = std::get<1>(roadmap);
-		std::cout << "edges:" << std::endl;
-		for (const std::vector<int> edge : edges){
-			std::cout << edge[0] << " " << edge[1] << std::endl;
-			cv::line(plot, cv::Point2f(nodes[edge[0]].x*1000, nodes[edge[0]].y*1000), cv::Point2f(nodes[edge[1]].x*1000, nodes[edge[1]].y*1000), cv::Scalar(255, 255, 0), 2);
+		std::vector< std::vector<float> > adjacency_matrix = std::get<1>(roadmap);
+		std::cout << "adjacency_matrix:" << std::endl;
+		for (int i=0; i<adjacency_matrix.size(); ++i){
+			for (int j=0; j<adjacency_matrix[i].size(); ++j){
+				std::cout << adjacency_matrix[i][j] << "\t";
+				if (adjacency_matrix[i][j] > 0.0){
+					cv::line(plot, cv::Point2f(nodes[i].x*1000, nodes[i].y*1000), cv::Point2f(nodes[j].x*1000, nodes[j].y*1000), cv::Scalar(255, 255, 0), 2);
+				}
+			}
+			std::cout << std::endl;
 		}
 
 		cv::imshow("VCD", plot);

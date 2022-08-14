@@ -44,8 +44,9 @@ std::vector<Polygon> merge_cells(std::vector<Polygon> cells);
 
 
 /*!
-* Create the roadmap returning the list of nodes and the adjacency matrix describing how they are connected to each other.
+* Create the roadmap returning the list of nodes and the adjacency matrix describing how they are connected to each other and how much they are distant if connected.
 * @param[in]  cells            The cells generated from the VCD algorithm.
+* @param[in]  obstacles           The obstacles.
 */
-std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector<Polygon> cells);
+std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles);
 

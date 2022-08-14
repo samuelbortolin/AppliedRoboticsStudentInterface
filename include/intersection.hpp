@@ -44,8 +44,18 @@ bool intersection_segment_segment(Point s1, Point e1, Point s2, Point e2);
 * @param[in]  s2  The starting point of the second segment.
 * @param[in]  e2  The ending point of the second segment.
 */
-Point get_intersection_point_segment_segment(Point p1, Point p2, Point p3, Point p4);
+Point get_intersection_point_segment_segment(Point s1, Point e1, Point s2, Point e2);
 
 
-// TODO: add a method to check robot path intersections with obstacles or with each other
+/*!
+* Check if there is a intersection between a segment and the obstacles.
+* @param[in]  p1         The starting point of the first segment.
+* @param[in]  p2         The ending point of the first segment.
+* @param[in]  s2         The starting point of the second segment.
+* @param[in]  obstacles  The obstacles.
+*/
+bool get_intersection_segment_obstacles(Point s1, Point e1, std::vector<Polygon> obstacles);
+
+
+// TODO: add a method to check robot path intersections with with each other
 

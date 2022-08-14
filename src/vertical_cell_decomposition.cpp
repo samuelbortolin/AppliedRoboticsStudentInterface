@@ -67,7 +67,7 @@ std::vector< std::vector<Point> > create_segments_vertical_decomposition(std::ve
 		upper_obs_pt = temp_point;
 
 		// iterate all the vertices of the obstacles and check if they intersect with other obstacle lines
-		for (int obs = 0; obs < obstacles.size()&&!will_brake; obs++){
+		for (int obs = 0; obs < obstacles.size() && !will_brake; obs++){
 			for (int vertex = 0; vertex < obstacles[obs].size() && !will_brake; vertex++){
 				if (vertex != obstacles[obs].size() - 1){
 					temp_segment = {obstacles[obs][vertex], obstacles[obs][vertex + 1]};
@@ -404,14 +404,16 @@ Point get_cell_centroid(Polygon cell){
 // std::vector<Polygon> merge_cells(std::vector<Polygon> cells);
 
 
-std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap(std::vector<Polygon> cells){
+std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles){
 	std::vector<int> same_boundary;
 	std::vector<Point> graph_vertices;
 	std::vector< std::vector<int> > graph_edges;
+	std::vector< std::vector<float> > adjacency_matrix;
 	Point centroid_vertex;
 	Point curr_centroid_vertex;
 	std::vector<int> temp_edge;
 	std::vector<Point> temp_points;
+	bool insert_edge;
 	bool inside;
 	int place; 
 	int place1;
@@ -460,10 +462,14 @@ std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap
 
 			if (place != -1){
 				temp_edge = {place, n};
-				graph_edges.push_back(temp_edge);
+				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+					graph_edges.push_back(temp_edge);
+				}
 			} else {
 				temp_edge = {n-1, n};
-				graph_edges.push_back(temp_edge);
+				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+					graph_edges.push_back(temp_edge);
+				}
 			}
 
 			temp_points = {};
@@ -485,10 +491,14 @@ std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap
 			if (place2 == -1){
 				graph_vertices.push_back(curr_centroid_vertex);
 				temp_edge = {n, n+1};
-				graph_edges.push_back(temp_edge);
+				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+					graph_edges.push_back(temp_edge);
+				}
 			} else {
 				temp_edge = {n, place2};
-				graph_edges.push_back(temp_edge);
+				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+					graph_edges.push_back(temp_edge);
+				}
 			}
 		} else if (same_boundary.size() > 1){
 			n = graph_vertices.size() - 1;
@@ -498,7 +508,7 @@ std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap
 				use = n;
 			}
 
-			for (int i = 0; i < same_boundary.size(); i ++){
+			for (int i = 0; i < same_boundary.size(); i++){
 				temp_points.clear();
 				for(int pt = 0; pt < 4; pt++){
 					temp_points.push_back(cells[same_boundary[i]][pt]);
@@ -521,13 +531,30 @@ std::tuple< std::vector<Point>, std::vector< std::vector<int> > > create_roadmap
 					place2 = graph_vertices.size() - 1;
 				}
 				temp_edge = {use, place1};
-				graph_edges.push_back(temp_edge);
+				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+					graph_edges.push_back(temp_edge);
+				}
 				temp_edge = {place1, place2};
-				graph_edges.push_back(temp_edge);
+				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+					graph_edges.push_back(temp_edge);
+				}
 			}
 		}
 	}
-	// TODO: not really an adjacency matrix, but maybe we can contruct it as it is documented
-	return std::make_tuple(graph_vertices, graph_edges);
+
+	// construct the adjacency matrix
+	adjacency_matrix = {};
+	for (int i = 0; i < graph_vertices.size(); i++){
+		adjacency_matrix.push_back({});
+		for (int j = 0; j < graph_vertices.size(); j++){
+			adjacency_matrix[i].push_back(0.0);
+		}
+	}
+	for (const std::vector<int> edge : graph_edges){
+		float distance = sqrt(pow(graph_vertices[edge[0]].x - graph_vertices[edge[1]].x, 2) + pow(graph_vertices[edge[0]].y - graph_vertices[edge[1]].y, 2));
+		adjacency_matrix[edge[0]][edge[1]] = distance;
+		adjacency_matrix[edge[1]][edge[0]] = distance;
+	}
+	return std::make_tuple(graph_vertices, adjacency_matrix);
 }
 
