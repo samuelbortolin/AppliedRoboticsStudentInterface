@@ -413,7 +413,6 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 	Point curr_centroid_vertex;
 	std::vector<int> temp_edge;
 	std::vector<Point> temp_points;
-	bool insert_edge;
 	bool inside;
 	int place; 
 	int place1;
