@@ -200,9 +200,8 @@ Point get_intersection_point_segment_segment(Point s1, Point e1, Point s2, Point
 	float u = ((s1.y-e1.y)*(s1.x-s2.x) + (e1.x-s1.x)*(s1.y-s2.y)) / det;
 
 	Point p1 = Point(s1.x + t*(e1.x - s1.x), s1.y + t*(e1.y - s1.y));
-	Point p2 = Point(s2.x + u*(e2.x - s2.x), s2.y + u*(e2.y - s2.y));
-	if (p1.x == p2.x && p1.y == p2.y && t >= 0 && t <= 1 && u >= 0 && u <= 1){
-		return s1;
+	if (t > 0 && t < 1 && u > 0 && u < 1){
+		return p1;
 	}
 	return Point(-1, -1);
 }

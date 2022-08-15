@@ -3,17 +3,13 @@
 
 std::vector< std::tuple<Point, int> > sort_vertices(std::vector<Polygon> obstacles){
 	float vertices_num;
+	std::vector <std::tuple<Point, int> > sorted_vertices;
+	bool add_to_list;
 	for (int i = 0; i < obstacles.size(); i++){
 		for (const auto &point : obstacles[i]){
 			vertices_num += 1;
+			sorted_vertices.push_back(std::make_tuple(Point(-1, -1), -1));
 		}
-	}
-
-	std::vector <std::tuple<Point, int> > sorted_vertices;
-	bool add_to_list;
-
-	for (int curr_vertex = 0; curr_vertex < vertices_num; curr_vertex++){
-		sorted_vertices.push_back(std::make_tuple(Point(-1, -1), -1));
 	}
 
 	for (int curr_vertex = vertices_num - 1; curr_vertex >= 0; curr_vertex--){
@@ -27,7 +23,7 @@ std::vector< std::tuple<Point, int> > sort_vertices(std::vector<Polygon> obstacl
 						add_to_list = true;
 					}
 
-					for (int vert = 0; vert < sorted_vertices.size(); vert ++){
+					for (int vert = 0; vert < sorted_vertices.size(); vert++){
 						if (std::get<0>(sorted_vertices[vert]).x == obstacles[obj][vertex].x && std::get<0>(sorted_vertices[vert]).y == obstacles[obj][vertex].y){
 							add_to_list = false;
 						}
@@ -170,7 +166,7 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 	std::vector<Point> next_segment;
 	std::vector< std::vector<Point> > lines_to_check;
 	std::vector<int> segment_typology;
-	std::vector< std::vector<Point> > trapezoids;
+	std::vector<Polygon> trapezoids;
 	std::vector<bool> done;
 
 	for (int i = 0; i < segments.size(); i++){
@@ -261,7 +257,7 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 				}
 			}
 
-			if (done[2] == 0){
+			if (!done[2]){
 				if (next_segment[0].y != -1 && next_segment[1].y != -1){
 					temp_segment[0] = curr_vertex;
 					temp_segment[1] = get_cell_centroid({next_segment[0], next_vertex});
@@ -400,11 +396,7 @@ Point get_cell_centroid(Polygon cell){
 }
 
 
-// TODO: add the method to merge overlapping cells
-// std::vector<Polygon> merge_cells(std::vector<Polygon> cells);
-
-
-std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles){
+std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, bool add_addinitonal_edges){
 	std::vector<int> same_boundary;
 	std::vector<Point> graph_vertices;
 	std::vector< std::vector<int> > graph_edges;
@@ -461,14 +453,14 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 
 			if (place != -1){
 				temp_edge = {place, n};
-				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
 					graph_edges.push_back(temp_edge);
-				}
+				// }
 			} else {
 				temp_edge = {n-1, n};
-				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
 					graph_edges.push_back(temp_edge);
-				}
+				// }
 			}
 
 			temp_points = {};
@@ -490,14 +482,14 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 			if (place2 == -1){
 				graph_vertices.push_back(curr_centroid_vertex);
 				temp_edge = {n, n+1};
-				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
 					graph_edges.push_back(temp_edge);
-				}
+				// }
 			} else {
 				temp_edge = {n, place2};
-				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
 					graph_edges.push_back(temp_edge);
-				}
+				// }
 			}
 		} else if (same_boundary.size() > 1){
 			n = graph_vertices.size() - 1;
@@ -530,13 +522,13 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 					place2 = graph_vertices.size() - 1;
 				}
 				temp_edge = {use, place1};
-				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
 					graph_edges.push_back(temp_edge);
-				}
+				// }
 				temp_edge = {place1, place2};
-				if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
+				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
 					graph_edges.push_back(temp_edge);
-				}
+				// }
 			}
 		}
 	}
@@ -553,6 +545,19 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 		float distance = sqrt(pow(graph_vertices[edge[0]].x - graph_vertices[edge[1]].x, 2) + pow(graph_vertices[edge[0]].y - graph_vertices[edge[1]].y, 2));
 		adjacency_matrix[edge[0]][edge[1]] = distance;
 		adjacency_matrix[edge[1]][edge[0]] = distance;
+	}
+
+	// add additional edges
+	if (add_addinitonal_edges){
+		for (int i = 0; i < adjacency_matrix.size(); i++){
+			for (int j = 0; j < adjacency_matrix[i].size(); j++){
+				if (!get_intersection_segment_obstacles(graph_vertices[i], graph_vertices[j], obstacles)){
+					float distance = sqrt(pow(graph_vertices[i].x - graph_vertices[j].x, 2) + pow(graph_vertices[i].y - graph_vertices[j].y, 2));
+					adjacency_matrix[i][j] = distance;
+					adjacency_matrix[j][i] = distance;
+				}
+			}
+		}
 	}
 	return std::make_tuple(graph_vertices, adjacency_matrix);
 }

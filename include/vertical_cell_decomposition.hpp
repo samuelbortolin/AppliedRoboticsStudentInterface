@@ -1,4 +1,5 @@
 #include <tuple>
+#include <algorithm>
 #include "utils.hpp"
 #include "intersection.hpp"
 
@@ -37,16 +38,10 @@ Point get_cell_centroid(Polygon cell);
 
 
 /*!
-* Merge cells.
-* @param[in]  cells            The cells generated from the VCD algorithm.
-*/
-std::vector<Polygon> merge_cells(std::vector<Polygon> cells);
-
-
-/*!
 * Create the roadmap returning the list of nodes and the adjacency matrix describing how they are connected to each other and how much they are distant if connected.
-* @param[in]  cells            The cells generated from the VCD algorithm.
-* @param[in]  obstacles           The obstacles.
+* @param[in]  cells                       The cells generated from the VCD algorithm.
+* @param[in]  obstacles                   The obstacles.
+* @param[in]  add_addinitonal_edges       Whether to add additional possible edges to the roadmap.
 */
-std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles);
+std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, bool add_addinitonal_edges);
 

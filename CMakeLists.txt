@@ -12,7 +12,9 @@ include_directories(
 	include
 	${OpenCV_INCLUDE_DIRS}
 	${project_interface_INCLUDE_DIRS}
+	src/boost/boost
 )
+
 
 ## CREATE EXECUTABLE LIBRARY
 add_library(student SHARED

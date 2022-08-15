@@ -399,49 +399,58 @@ namespace student {
 
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
-		// Add offset the obstacles in the arena
-		std::cout << "obstacle_list:" << std::endl;
-		for (Polygon obstacle : obstacle_list){
-			for (Point point : obstacle){
-				std::cout << point.x << " " << point.y << std::endl;
-			}
-			std::cout << std::endl;
-		}
+		// std::cout << "obstacle_list:" << std::endl;
+		// for (Polygon obstacle : obstacle_list){
+		// 	for (Point point : obstacle){
+		// 		std::cout << point.x << " " << point.y << std::endl;
+		// 	}
+		// 	std::cout << std::endl;
+		// }
 
-		std::cout << "obstacle_list_with_offset:" << std::endl;
+		// Add offset the obstacles in the arena
 		std::vector<Polygon> obstacle_list_with_offset = add_offset_to_obstacles(obstacle_list, offset_value);
-		for (Polygon obstacle : obstacle_list_with_offset){
+		// std::cout << "obstacle_list_with_offset:" << std::endl;
+		// for (Polygon obstacle : obstacle_list_with_offset){
+		// 	for (int i=0; i<obstacle.size(); ++i){
+		// 		std::cout << obstacle[i].x << " " << obstacle[i].y << std::endl;
+		// 	}
+		// 	std::cout << std::endl;
+		// }
+
+		// Merge overlapping obstacles
+		std::vector<Polygon> merged_obstacles = merge_obstacles(obstacle_list_with_offset);
+		std::vector<Polygon> convex_hull_merged_obstacles = create_convex_hull(merged_obstacles);
+		// std::cout << "convex_hull_merged_obstacles:" << std::endl;
+		for (Polygon obstacle : convex_hull_merged_obstacles){
 			for (int i=0; i<obstacle.size(); ++i){
-				std::cout << obstacle[i].x << " " << obstacle[i].y << std::endl;
+				// std::cout << obstacle[i].x << " " << obstacle[i].y << std::endl;
 				if (i != obstacle.size() - 1){
 					cv::line(plot, cv::Point2f(obstacle[i].x*1000, obstacle[i].y*1000), cv::Point2f(obstacle[i + 1].x*1000, obstacle[i + 1].y*1000), cv::Scalar(255, 0, 0), 2);
 				} else {
 					cv::line(plot, cv::Point2f(obstacle[i].x*1000, obstacle[i].y*1000), cv::Point2f(obstacle[0].x*1000, obstacle[0].y*1000), cv::Scalar(255, 0, 0), 2);
 				}
 			}
-			std::cout << std::endl;
+			// std::cout << std::endl;
 		}
-
-		// TODO: merge obstacles
 
 		// Add offset the borders of the arena
-		std::cout << "borders:" << std::endl;
-		for (Point point : borders){
-			std::cout << point.x << " " << point.y << std::endl;
-		}
-		std::cout << std::endl;
+		// std::cout << "borders:" << std::endl;
+		// for (Point point : borders){
+		// 	std::cout << point.x << " " << point.y << std::endl;
+		// }
+		// std::cout << std::endl;
 
-		std::cout << "borders_with_offset:" << std::endl;
+		// std::cout << "borders_with_offset:" << std::endl;
 		const Polygon borders_with_offset = add_offset_to_borders(borders, -offset_value);
 		for (int i=0; i<borders_with_offset.size(); ++i){
-			std::cout << borders_with_offset[i].x << " " << borders_with_offset[i].y << std::endl;
+			// std::cout << borders_with_offset[i].x << " " << borders_with_offset[i].y << std::endl;
 			if (i != borders_with_offset.size() - 1){
 				cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[i + 1].x*1000, borders_with_offset[i + 1].y*1000), cv::Scalar(255, 0, 0), 2);
 			} else {
 				cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[0].x*1000, borders_with_offset[0].y*1000), cv::Scalar(255, 0, 0), 2);
 			}
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 
 		cv::imshow("VCD", plot);
 		cv::waitKey(5000);
@@ -461,13 +470,16 @@ namespace student {
 		// a = get_intersection_point_segment_segment(Point(0, 0), Point(2, 2), Point(1, 5), Point(7, 3));
 		// std::cout << intersection_segment_segment(Point(0, 0), Point(2, 0), Point(1, 5), Point(7, 3)) << std::endl;
 		// std::cout << a.x << " " << a.y << std::endl;
+		// a = get_intersection_point_segment_segment(Point(1.138, 0.535), Point(1.060, 0.397), Point(1.061, 0.224), Point(1.099, 0.530));
+		// std::cout << intersection_segment_segment(Point(1.138, 0.535), Point(1.060, 0.397), Point(1.061, 0.224), Point(1.099, 0.530)) << std::endl;
+		// std::cout << a.x << " " << a.y << std::endl;
 
 		// Sort vertices
-		std::vector <std::tuple<Point, int> > sorted_vertices = sort_vertices(obstacle_list_with_offset);
-		std::cout << "sorted_vertices:" << std::endl;
-		for (std::tuple<Point, int> vertex : sorted_vertices){
-			std::cout << std::get<0>(vertex).x << " " << std::get<0>(vertex).y << std::endl;
-		}
+		std::vector <std::tuple<Point, int> > sorted_vertices = sort_vertices(convex_hull_merged_obstacles);
+		// std::cout << "sorted_vertices:" << std::endl;
+		// for (std::tuple<Point, int> vertex : sorted_vertices){
+		// 	std::cout << std::get<0>(vertex).x << " " << std::get<0>(vertex).y << std::endl;
+		// }
 
 		// float lower_limit = -1;
 		// float upper_limit = -1;
@@ -490,7 +502,7 @@ namespace student {
 		// 	}
 		// }
 
-		// std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(sorted_vertices, obstacle_list_with_offset, lower_limit, upper_limit);
+		// std::vector< std::vector<Point> > segments = create_segments_vertical_decomposition(sorted_vertices, convex_hull_merged_obstacles, lower_limit, upper_limit);
 		// std::cout << "segments:" << std::endl;
 		// for (std::vector<Point> segment : segments){
 		// 	std::cout << segment[0].x << " " << segment[0].y << std::endl;
@@ -503,18 +515,18 @@ namespace student {
 		// cv::waitKey(5000);
 
 		// Find VCD cells
-		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, obstacle_list_with_offset);
-		std::cout << "cells:" << std::endl;
+		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, convex_hull_merged_obstacles);
+		// std::cout << "cells:" << std::endl;
 		for (Polygon cell : cells){
 			for (int i=0; i<cell.size(); ++i){
-				std::cout << cell[i].x << " " << cell[i].y << std::endl;
+				// std::cout << cell[i].x << " " << cell[i].y << std::endl;
 				if (i != cell.size() - 1){
 					cv::line(plot, cv::Point2f(cell[i].x*1000, cell[i].y*1000), cv::Point2f(cell[i + 1].x*1000, cell[i + 1].y*1000), cv::Scalar(0, 255, 0), 2);
 				} else {
 					cv::line(plot, cv::Point2f(cell[i].x*1000, cell[i].y*1000), cv::Point2f(cell[0].x*1000, cell[0].y*1000), cv::Scalar(0, 255, 0), 2);
 				}
 			}
-			std::cout << std::endl;
+			// std::cout << std::endl;
 			Point cell_centroid = get_cell_centroid(cell);
 			cv::circle(plot, cv::Point2f(cell_centroid.x*1000, cell_centroid.y*1000), 2, cv::Scalar(0, 0, 255), 2);
 		}
@@ -522,26 +534,25 @@ namespace student {
 		cv::imshow("VCD", plot);
 		cv::waitKey(5000);
 
-		// TODO: merge cells
-
 		// Get roadmap from cells
-		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, obstacle_list_with_offset);
+		bool add_addinitonal_edges = false;
+		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, add_addinitonal_edges);
 		std::vector<Point> nodes = std::get<0>(roadmap);
-		std::cout << "nodes:" << std::endl;
+		// std::cout << "nodes:" << std::endl;
 		for (const Point& node : nodes){
-			std::cout << node.x << " " << node.y << std::endl;
+			// std::cout << node.x << " " << node.y << std::endl;
 			cv::circle(plot, cv::Point2f(node.x*1000, node.y*1000), 2, cv::Scalar(255, 0, 255), 2);
 		}
 		std::vector< std::vector<float> > adjacency_matrix = std::get<1>(roadmap);
-		std::cout << "adjacency_matrix:" << std::endl;
+		// std::cout << "adjacency_matrix:" << std::endl;
 		for (int i=0; i<adjacency_matrix.size(); ++i){
 			for (int j=0; j<adjacency_matrix[i].size(); ++j){
-				std::cout << adjacency_matrix[i][j] << "\t";
+				// std::cout << adjacency_matrix[i][j] << "\t";
 				if (adjacency_matrix[i][j] > 0.0){
 					cv::line(plot, cv::Point2f(nodes[i].x*1000, nodes[i].y*1000), cv::Point2f(nodes[j].x*1000, nodes[j].y*1000), cv::Scalar(255, 255, 0), 2);
 				}
 			}
-			std::cout << std::endl;
+			// std::cout << std::endl;
 		}
 
 		cv::imshow("VCD", plot);
