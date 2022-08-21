@@ -580,6 +580,9 @@ namespace student {
 			    2);
 		}
 
+		cv::imshow("VCD", plot);
+		cv::waitKey(5000);
+
 		// Find optimal paths for all the robots (TODO: without intersections)
 		std::vector<int> initial_nodes = {};
 		for(int i=0; i<x.size(); i++){
@@ -593,13 +596,19 @@ namespace student {
 			std::cout<<std::endl;
 		}		
 
-		// TODO reach the target in an easy way (directly connecting them)
+		// reach the target in an easy way (directly connecting them) [TODO: use multi-point dubins to smooth the paths]
+		for (int i=0; i<optimal_paths.size(); i++){
+			for (int j=0; j<optimal_paths[i].size() - 1; j++){
+				float ds = 0.1;
+				float dx = (nodes[optimal_paths[i][j + 1]].x - nodes[optimal_paths[i][j]].x) / 50;
+				float dy = (nodes[optimal_paths[i][j + 1]].y - nodes[optimal_paths[i][j]].y) / 50;
+				for (float l=0, s=0; l<50; l++, s+=ds){
+				    path[i].points.emplace_back(s, nodes[optimal_paths[i][j]].x+dx*l, nodes[optimal_paths[i][j]].y+dy*l, theta[i], 0.0);	
+				}
+			}
+		}
 
-		cv::imshow("VCD", plot);
-		cv::waitKey(0);
-
-		// TODO: use multi-point dubins to smooth the paths
-
+		return true;
 	}
 }
 
