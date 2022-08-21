@@ -2,8 +2,6 @@
 #include <bits/stdc++.h>
 
 
-
-
 /*!
 * Run the UCS algorithm in order to obtain the optimal cost to the target for each node.
 * @param[in]  adjacency_matrix            The adjacency matrix of the roadmap.
@@ -20,3 +18,4 @@ std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int t
 * @param[in] nodes			The nodes of the roadmap.
 */
 std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost, std::vector<std::vector<float>> adjacency_matrix, std::vector<int> initial_nodes, std::vector<Point> nodes);
+

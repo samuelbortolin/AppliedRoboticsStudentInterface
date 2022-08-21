@@ -583,7 +583,7 @@ namespace student {
 		cv::imshow("VCD", plot);
 		cv::waitKey(5000);
 
-		// Find optimal paths for all the robots (TODO: without intersections)
+		// Find optimal paths for all the robots without intersections
 		std::vector<int> initial_nodes = {};
 		for(int i=0; i<x.size(); i++){
 			int initial_node = adjacency_matrix.size() - gate_list.size() - x.size() + i;

@@ -56,6 +56,3 @@ Point get_intersection_point_segment_segment(Point s1, Point e1, Point s2, Point
 */
 bool get_intersection_segment_obstacles(Point s1, Point e1, std::vector<Polygon> obstacles);
 
-
-// TODO: add a method to check robot path intersections with with each other
-
