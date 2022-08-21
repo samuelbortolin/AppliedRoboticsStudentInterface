@@ -75,7 +75,7 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 				}
 			}
 			optimal_paths[i].push_back(optimal_node);
-			if(optimal_node == target){
+			if(optimal_node == target){  // TODO: avoid infinite loop if we are no able to reach the target
 				arrived_robots++;
 			}
 		}
