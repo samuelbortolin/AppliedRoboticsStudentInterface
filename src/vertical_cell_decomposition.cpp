@@ -396,7 +396,7 @@ Point get_cell_centroid(Polygon cell){
 }
 
 
-std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, bool add_addinitonal_edges){
+std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, bool add_addinitonal_edges, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y){
 	std::vector<int> same_boundary;
 	std::vector<Point> graph_vertices;
 	std::vector< std::vector<int> > graph_edges;
@@ -531,6 +531,16 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 				// }
 			}
 		}
+	}
+
+	// Add starting robot positions
+	for (int i = 0; i < x.size(); i++){
+		graph_vertices.push_back(Point(x[i], y[i]));
+	}
+
+	// Add ending gates
+	for (int i = 0; i < gate_list.size(); i++){
+		graph_vertices.push_back(get_cell_centroid(gate_list[i]));
 	}
 
 	// construct the adjacency matrix

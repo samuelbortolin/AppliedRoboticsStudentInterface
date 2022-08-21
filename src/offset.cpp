@@ -39,7 +39,7 @@ std::vector<Polygon> add_offset_to_obstacles(const std::vector<Polygon>& obstacl
 }
 
 
-std::vector<Polygon> merge_obstacles(const std::vector<Polygon> &obstacle_list){
+std::vector<Polygon> merge_obstacles(const std::vector<Polygon> &obstacle_list){ // TODO: consider intersection with borders
 	// convert obstacles to paths
 	std::vector<ClipperLib::Path> paths;
 	for (const Polygon obstacle : obstacle_list){

@@ -42,6 +42,9 @@ Point get_cell_centroid(Polygon cell);
 * @param[in]  cells                       The cells generated from the VCD algorithm.
 * @param[in]  obstacles                   The obstacles.
 * @param[in]  add_addinitonal_edges       Whether to add additional possible edges to the roadmap.
+* @param[in]  gate_list                   The list of gates.
+* @param[in]  x                           The list of x coordinates of the robots.
+* @param[in]  y                           The list of y coordinates of the robots.
 */
-std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, bool add_addinitonal_edges);
+std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, bool add_addinitonal_edges, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y);
 

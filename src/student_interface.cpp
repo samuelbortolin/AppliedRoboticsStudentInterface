@@ -399,6 +399,16 @@ namespace student {
 
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
+		// std::cout << "robots positions:" << std::endl;
+		// for (int i = 0; i < x.size(); i++){
+		// 	std::cout << x[i] << " " << y[i] << std::endl;
+		// }
+
+		// std::cout << "gates positions:" << std::endl;
+		// for (int i = 0; i < gate_list.size(); i++){
+		// 	std::cout << get_cell_centroid(gate_list[i]).x << " " << get_cell_centroid(gate_list[i]).y << std::endl;
+		// }
+
 		// std::cout << "obstacle_list:" << std::endl;
 		// for (Polygon obstacle : obstacle_list){
 		// 	for (Point point : obstacle){
@@ -535,8 +545,8 @@ namespace student {
 		cv::waitKey(5000);
 
 		// Get roadmap from cells
-		bool add_addinitonal_edges = false;
-		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, add_addinitonal_edges);
+		bool add_addinitonal_edges = true;
+		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, add_addinitonal_edges, gate_list, x, y);
 		std::vector<Point> nodes = std::get<0>(roadmap);
 		// std::cout << "nodes:" << std::endl;
 		for (const Point& node : nodes){
