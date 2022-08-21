@@ -571,4 +571,3 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 	}
 	return std::make_tuple(graph_vertices, adjacency_matrix);
 }
-

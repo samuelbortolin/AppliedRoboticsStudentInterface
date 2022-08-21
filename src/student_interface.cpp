@@ -565,11 +565,17 @@ namespace student {
 			// std::cout << std::endl;
 		}
 
+		// from a ucs find the best feasibile path for all robots
+		std::cout << std::endl << std::endl << "UCS";
+		printf("UCS");
+		int target_index = adjacency_matrix.size() - 1;
+		std::vector<float> optimal_cost = ucs(adjacency_matrix,  target_index);
+		for(float node_cost : optimal_cost){
+			std::cout << node_cost << " ";
+		}
 		cv::imshow("VCD", plot);
 		cv::waitKey(0);
-
-		// TODO: from a bfs find the best feasibile path for all robots
-
+		
 		// TODO: use multi-point dubins to smooth the paths
 	}
 }
