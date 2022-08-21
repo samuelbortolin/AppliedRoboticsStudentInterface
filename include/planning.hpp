@@ -18,4 +18,4 @@ std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int t
 * @param[in] adjacency_matrix		The adjancy matrix defining the roadmap.
 * @param[in] initial_nodes		The nodes from which the robots start.
 */
-std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost, std::vector<std::vector<float>> adjacency_matrix, std::vector<int> initial_nodes);
+std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost, std::vector<std::vector<float>> adjacency_matrix, std::vector<int> initial_nodes, std::vector<Point> nodes);

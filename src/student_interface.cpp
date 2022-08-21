@@ -586,9 +586,14 @@ namespace student {
 		// Find optimal paths for all the robots (TODO: without intersections)
 		std::vector<int> initial_nodes = {};
 		for(int i=0; i<x.size(); i++){
-			initial_nodes.push_back(adjacency_matrix.size() - gate_list.size() - x.size() + i);
+			int initial_node = adjacency_matrix.size() - gate_list.size() - x.size() + i;
+			if(optimal_cost[initial_node] < 0){
+				std::cout<<"Some of the robots can't reach the exit!!!";
+			} else {
+				initial_nodes.push_back(initial_node);
+			}
 		}
-		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, adjacency_matrix, initial_nodes);
+		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, adjacency_matrix, initial_nodes, nodes);
 		for(int i=0; i<optimal_paths.size(); i++){
 			for(int j=0; j<optimal_paths[i].size(); j++){
 				std::cout<<optimal_paths[i][j]<<" ";
