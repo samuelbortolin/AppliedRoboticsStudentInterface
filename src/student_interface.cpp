@@ -573,9 +573,17 @@ namespace student {
 		for (float node_cost : optimal_cost){
 			std::cout << node_cost << std::endl;
 		}
+		for(int i=0; i<nodes.size(); i++){
+			cv::putText(plot, //target image
+			    std::to_string(optimal_cost[i]), //text
+			    cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
+			    cv::FONT_HERSHEY_DUPLEX,
+			    1.0,
+			    CV_RGB(118, 185, 0), //font color
+			    2);
+		}
 		cv::imshow("VCD", plot);
 		cv::waitKey(0);
-		
 		// TODO: use multi-point dubins to smooth the paths
 	}
 }
