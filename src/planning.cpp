@@ -9,43 +9,41 @@ std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int t
 	// The current optimal cost
 	std::vector<float> best_cost_so_far;
 	// cost, node
-	std::priority_queue<std::pair<int, int>> queue;
+	std::priority_queue<std::pair<float, int>> queue;
 
-	for(int i=0; i < adjacency_matrix.size(); i++){
+	for (int i=0; i < adjacency_matrix.size(); i++){
 		explored.push_back(false);
-		best_cost_so_far.push_back(1);
+		best_cost_so_far.push_back(1.0);
 	}
 
-	queue.push(std::make_pair(0, target));
+	queue.push(std::make_pair(0.0, target));
 
-	while (!queue.empty()) {
+	while (!queue.empty()){
 		int current_node = queue.top().second;
 		// priority_queue doesn't provide a replace method so nodes could be present multiple times inside the queue.
-		if(explored[current_node]){
+		if (explored[current_node]){
 			queue.pop();
 			continue;
 		}
 		queue.pop();
 		explored[current_node] = true;
 		for (int i=0; i<adjacency_matrix.size(); i++){
-			if(adjacency_matrix[i][current_node] != 0 && !explored[i]){
+			if (adjacency_matrix[i][current_node] != 0.0 && !explored[i]){
 				int child_node = i;
-				int cost_to_arrive_from_current_path;
-				if(best_cost_so_far[current_node] == 1){
+				float cost_to_arrive_from_current_path;
+				if (best_cost_so_far[current_node] > 0.0){
 					// Priority queue is ordering in descending order, so to have it ordered in ascending order as UCS request it the costs are multiplied by -1
-					cost_to_arrive_from_current_path = (-1) * adjacency_matrix[current_node][child_node];
-				}
-				else {
+					cost_to_arrive_from_current_path = (-1.0) * adjacency_matrix[current_node][child_node];
+				} else {
 					cost_to_arrive_from_current_path = best_cost_so_far[current_node] - adjacency_matrix[current_node][child_node];
 				}
-				if(!explored[current_node] && best_cost_so_far[child_node] > 0 || best_cost_so_far[child_node] < cost_to_arrive_from_current_path){
+				if ((!explored[child_node] && best_cost_so_far[child_node] > 0.0) || best_cost_so_far[child_node] < cost_to_arrive_from_current_path){
 					best_cost_so_far[child_node] = cost_to_arrive_from_current_path;
 					queue.push(std::make_pair(cost_to_arrive_from_current_path, child_node));
 				}
 			}
 		}
 	}
-	
 	return best_cost_so_far;
 }
 
