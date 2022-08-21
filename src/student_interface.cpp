@@ -399,15 +399,15 @@ namespace student {
 
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
-		std::cout << "robots positions:" << std::endl;
-		for (int i = 0; i < x.size(); i++){
-			std::cout << x[i] << " " << y[i] << std::endl;
-		}
+		// std::cout << "robots positions:" << std::endl;
+		// for (int i = 0; i < x.size(); i++){
+		// 	std::cout << x[i] << " " << y[i] << std::endl;
+		// }
 
-		std::cout << "gates positions:" << std::endl;
-		for (int i = 0; i < gate_list.size(); i++){
-			std::cout << get_cell_centroid(gate_list[i]).x << " " << get_cell_centroid(gate_list[i]).y << std::endl;
-		}
+		// std::cout << "gates positions:" << std::endl;
+		// for (int i = 0; i < gate_list.size(); i++){
+		// 	std::cout << get_cell_centroid(gate_list[i]).x << " " << get_cell_centroid(gate_list[i]).y << std::endl;
+		// }
 
 		// std::cout << "obstacle_list:" << std::endl;
 		// for (Polygon obstacle : obstacle_list){
@@ -565,15 +565,12 @@ namespace student {
 			// std::cout << std::endl;
 		}
 
-		// from a ucs find the best feasibile path for all robots
-		std::cout << std::endl << "UCS" << std::endl;
+		// Usinga ucs find the best feasibile path for all robots
 		int target_index = adjacency_matrix.size() - 1;
 		std::vector<float> optimal_cost = ucs(adjacency_matrix, target_index);
-		std::cout << optimal_cost.size() << std::endl;
-		for (float node_cost : optimal_cost){
-			std::cout << node_cost << std::endl;
-		}
+		// std::cout << "UCS:" << std::endl;
 		for(int i=0; i<nodes.size(); i++){
+			// std::cout << optimal_cost[i] << std::endl;
 			cv::putText(plot, //target image
 			    std::to_string(optimal_cost[i]), //text
 			    cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
@@ -582,8 +579,14 @@ namespace student {
 			    CV_RGB(118, 185, 0), //font color
 			    2);
 		}
+
+		// TODO: find optimal paths for all the robots (without intersections)
+
 		cv::imshow("VCD", plot);
 		cv::waitKey(0);
+
 		// TODO: use multi-point dubins to smooth the paths
+
 	}
 }
+

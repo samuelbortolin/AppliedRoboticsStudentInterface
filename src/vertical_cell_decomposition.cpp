@@ -115,7 +115,7 @@ std::vector< std::vector<Point> > create_segments_vertical_decomposition(std::ve
 }
 
 
-std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector<Polygon> obstacles){
+std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector<Polygon> obstacles){  // TODO: it is useful to merge cells?
 	float lower_limit = -1;
 	float upper_limit = -1;
 	float left_limit = -1;
