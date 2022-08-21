@@ -565,7 +565,7 @@ namespace student {
 			// std::cout << std::endl;
 		}
 
-		// Usinga ucs find the best feasibile path for all robots
+		// Using a ucs find the best feasibile path for all robots
 		int target_index = adjacency_matrix.size() - 1;
 		std::vector<float> optimal_cost = ucs(adjacency_matrix, target_index);
 		// std::cout << "UCS:" << std::endl;
