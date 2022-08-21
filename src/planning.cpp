@@ -64,8 +64,8 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 			if(current_node == target){
 				continue;
 			}
-			float smallest_cost = -1.0;
-			int optimal_node = -1;
+			float smallest_cost = optimal_cost[current_node];
+			int optimal_node = current_node;
 			for(int j=0; j<adjacency_matrix.size(); j++){
 				if(adjacency_matrix[current_node][j] != 0.0){
 					if(smallest_cost > optimal_cost[j]){
@@ -83,31 +83,4 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 	
 	return optimal_paths;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
