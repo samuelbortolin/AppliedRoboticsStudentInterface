@@ -581,11 +581,29 @@ namespace student {
 		}
 
 		// TODO: find optimal paths for all the robots (without intersections)
-
+		std::vector<int> initial_nodes = {};
+		for(int i=0; i<x.size(); i++){
+			initial_nodes.push_back(adjacency_matrix.size() - gate_list.size() - x.size() + i);
+			std::cout<<(adjacency_matrix.size() - gate_list.size() - x.size() + i)<<" ";
+		}
+		// std::cout<<std::endl;
+		std::cout<<" "<< optimal_cost.size()<<std::endl;
+		std::cout<<" "<< adjacency_matrix.size()<<std::endl;
+		std::cout<<" "<<adjacency_matrix[0].size()<<std::endl;
+		std::cout<<" "<<initial_nodes.size()<<std::endl;
+		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, adjacency_matrix, initial_nodes);
+		for(int i=0; i<optimal_paths.size(); i++){
+			for(int j=0; j<optimal_paths[i].size(); j++){
+				std::cout<<optimal_paths[i][j]<<" ";
+			}
+			std::cout<<std::endl;
+		}		
+			
 		cv::imshow("VCD", plot);
 		cv::waitKey(0);
 
 		// TODO: use multi-point dubins to smooth the paths
+		
 
 	}
 }

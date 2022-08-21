@@ -14,6 +14,7 @@ std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int t
 	}
 
 	queue.push(std::make_pair(0.0, target));
+	best_cost_so_far[target] = 0.0;
 
 	while (!queue.empty()){
 		int current_node = queue.top().second;
@@ -41,47 +42,72 @@ std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int t
 			}
 		}
 	}
+	
+	for(int i=0; i<best_cost_so_far.size(); i++){
+		best_cost_so_far[i] = best_cost_so_far[i] * (-1.0);
+	}
 	return best_cost_so_far;
 }
 
 
-/*std::vector< std::vector<int> > bfs(std::vector< std::vector<int> > adjacency_matrix, int source, int target, std::vector<Point> centroids){
-	std::vector<bool> explored;
-	int path_cost[adjacency_matrix.size()];
-	// node, cost
-	std::vector<std::pair<int, int>> parents;
-	std::vector< std::vector<int> > paths;
-	// cost, node
-	std::priority_queue<std::pair<int, int>> queue;
-	
-	for(int i=0; i < adjacency_matrix.size(); i++){
-		explored.push_back(false);
-		path_cost[i] = 1
-		parents[i] = make_pair(-1, 0);
+std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost, std::vector<std::vector<float>> adjacency_matrix, std::vector<int> initial_nodes){
+	int arrived_robots = 0;
+	int target = adjacency_matrix.size()-1;
+	std::vector<std::vector<int>> optimal_paths = {};
+	for(int initial_node : initial_nodes){
+		optimal_paths.push_back({initial_node});
 	}
-	
-	queue.push(std::make_pair(0, source));
-	while (queue.empty()) {
-		int current_edge = queue.top().second;
-		queue.pop();
-		explored[current_edge] = true;
-		if(current_edge == target){
-			break;
-		}
-		for (int child_node=0; child_node<adjacency_matrix.size(); child_node++){
-			if(adjacency_matrix[child_node][current_edge] != 0 && !explored[child_node]){
-				int current_cost = adjacency_matrix[child_node][current_edge] * (-1);
-				path_cost[child_node] = path_cost[current_node] - current_cost;
-				if(parents[child_node].first < 0){
-					parents[child_node] = make_pair(current_node, path_cost[child_node]);		
-				} else if(parents[child_node].second < path_cost[child_node]){
-					parents[child_node] = make_pair(current_node, path_cost[child_node]);
+	while(arrived_robots < initial_nodes.size()){
+		
+		for(int i=0; i<initial_nodes.size(); i++){
+			int current_node = optimal_paths[i].back();
+			if(current_node == target){
+				continue;
+			}
+			float smallest_cost = -1.0;
+			int optimal_node = -1;
+			for(int j=0; j<adjacency_matrix.size(); j++){
+				if(adjacency_matrix[current_node][j] != 0.0){
+					if(smallest_cost > optimal_cost[j]){
+						smallest_cost = optimal_cost[j];
+						optimal_node = j;
+					}
 				}
-				
-				queue.push(std::make_pair(path_cost[child_node], child_node));
+			}
+			optimal_paths[i].push_back(optimal_node);
+			if(optimal_node == target){
+				arrived_robots++;
 			}
 		}
 	}
-}*/
+	
+	return optimal_paths;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
