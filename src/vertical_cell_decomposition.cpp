@@ -396,7 +396,7 @@ Point get_cell_centroid(Polygon cell){
 }
 
 
-std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, bool add_addinitonal_edges, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y){
+std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y){
 	std::vector<int> same_boundary;
 	std::vector<Point> graph_vertices;
 	std::vector< std::vector<int> > graph_edges;
@@ -557,15 +557,13 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 		adjacency_matrix[edge[1]][edge[0]] = distance;
 	}
 
-	// add additional edges
-	if (add_addinitonal_edges){
-		for (int i = 0; i < adjacency_matrix.size(); i++){
-			for (int j = 0; j < adjacency_matrix[i].size(); j++){
-				if (!get_intersection_segment_obstacles(graph_vertices[i], graph_vertices[j], obstacles)){
-					float distance = sqrt(pow(graph_vertices[i].x - graph_vertices[j].x, 2) + pow(graph_vertices[i].y - graph_vertices[j].y, 2));
-					adjacency_matrix[i][j] = distance;
-					adjacency_matrix[j][i] = distance;
-				}
+	// add all the possible edges in order to connect starting points, ending points and obtaining better routes
+	for (int i = 0; i < adjacency_matrix.size(); i++){
+		for (int j = 0; j < adjacency_matrix[i].size(); j++){
+			if (!get_intersection_segment_obstacles(graph_vertices[i], graph_vertices[j], obstacles)){
+				float distance = sqrt(pow(graph_vertices[i].x - graph_vertices[j].x, 2) + pow(graph_vertices[i].y - graph_vertices[j].y, 2));
+				adjacency_matrix[i][j] = distance;
+				adjacency_matrix[j][i] = distance;
 			}
 		}
 	}

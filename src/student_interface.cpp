@@ -395,7 +395,7 @@ namespace student {
 
 	bool planPath(const Polygon& borders, const std::vector<Polygon>& obstacle_list, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y, const std::vector<float> theta, std::vector<Path>& path, const std::string& config_folder){
 		// Parameters
-		float offset_value = 50.0; // The offset value
+		float offset_value = 0.050; // The offset value
 
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
@@ -403,11 +403,32 @@ namespace student {
 		// for (int i = 0; i < x.size(); i++){
 		// 	std::cout << x[i] << " " << y[i] << std::endl;
 		// }
+		// std::cout << std::endl;
 
 		// std::cout << "gates positions:" << std::endl;
 		// for (int i = 0; i < gate_list.size(); i++){
 		// 	std::cout << get_cell_centroid(gate_list[i]).x << " " << get_cell_centroid(gate_list[i]).y << std::endl;
 		// }
+		// std::cout << std::endl;
+
+		// std::cout << "borders:" << std::endl;
+		// for (Point point : borders){
+		// 	std::cout << point.x << " " << point.y << std::endl;
+		// }
+		// std::cout << std::endl;
+
+		// Add offset the borders of the arena
+		// std::cout << "borders_with_offset:" << std::endl;
+		const Polygon borders_with_offset = add_offset_to_borders(borders, -offset_value);
+		for (int i=0; i<borders_with_offset.size(); ++i){
+			// std::cout << borders_with_offset[i].x << " " << borders_with_offset[i].y << std::endl;
+			if (i != borders_with_offset.size() - 1){
+				cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[i + 1].x*1000, borders_with_offset[i + 1].y*1000), cv::Scalar(255, 0, 0), 2);
+			} else {
+				cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[0].x*1000, borders_with_offset[0].y*1000), cv::Scalar(255, 0, 0), 2);
+			}
+		}
+		// std::cout << std::endl;
 
 		// std::cout << "obstacle_list:" << std::endl;
 		// for (Polygon obstacle : obstacle_list){
@@ -416,6 +437,7 @@ namespace student {
 		// 	}
 		// 	std::cout << std::endl;
 		// }
+		// std::cout << std::endl;
 
 		// Add offset the obstacles in the arena
 		std::vector<Polygon> obstacle_list_with_offset = add_offset_to_obstacles(obstacle_list, offset_value);
@@ -427,8 +449,9 @@ namespace student {
 		// 	std::cout << std::endl;
 		// }
 
-		// Merge overlapping obstacles
-		std::vector<Polygon> merged_obstacles = merge_obstacles(obstacle_list_with_offset);
+		// Merge overlapping obstacles and consider borders
+		std::vector<Polygon> merged_obstacles = merge_obstacles(obstacle_list_with_offset, borders_with_offset);
+		// Then create the convex hull to get the final obstacles
 		std::vector<Polygon> convex_hull_merged_obstacles = create_convex_hull(merged_obstacles);
 		// std::cout << "convex_hull_merged_obstacles:" << std::endl;
 		for (Polygon obstacle : convex_hull_merged_obstacles){
@@ -441,24 +464,6 @@ namespace student {
 				}
 			}
 			// std::cout << std::endl;
-		}
-
-		// Add offset the borders of the arena
-		// std::cout << "borders:" << std::endl;
-		// for (Point point : borders){
-		// 	std::cout << point.x << " " << point.y << std::endl;
-		// }
-		// std::cout << std::endl;
-
-		// std::cout << "borders_with_offset:" << std::endl;
-		const Polygon borders_with_offset = add_offset_to_borders(borders, -offset_value);
-		for (int i=0; i<borders_with_offset.size(); ++i){
-			// std::cout << borders_with_offset[i].x << " " << borders_with_offset[i].y << std::endl;
-			if (i != borders_with_offset.size() - 1){
-				cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[i + 1].x*1000, borders_with_offset[i + 1].y*1000), cv::Scalar(255, 0, 0), 2);
-			} else {
-				cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[0].x*1000, borders_with_offset[0].y*1000), cv::Scalar(255, 0, 0), 2);
-			}
 		}
 		// std::cout << std::endl;
 
@@ -483,6 +488,7 @@ namespace student {
 		// a = get_intersection_point_segment_segment(Point(1.138, 0.535), Point(1.060, 0.397), Point(1.061, 0.224), Point(1.099, 0.530));
 		// std::cout << intersection_segment_segment(Point(1.138, 0.535), Point(1.060, 0.397), Point(1.061, 0.224), Point(1.099, 0.530)) << std::endl;
 		// std::cout << a.x << " " << a.y << std::endl;
+		// std::cout << std::endl;
 
 		// Sort vertices
 		std::vector <std::tuple<Point, int> > sorted_vertices = sort_vertices(convex_hull_merged_obstacles);
@@ -490,10 +496,10 @@ namespace student {
 		// for (std::tuple<Point, int> vertex : sorted_vertices){
 		// 	std::cout << std::get<0>(vertex).x << " " << std::get<0>(vertex).y << std::endl;
 		// }
+		// std::cout << std::endl;
 
 		// float lower_limit = -1;
 		// float upper_limit = -1;
-
 		// for (const Point& pt : borders_with_offset){
 		// 	if (lower_limit == -1){
 		// 		lower_limit = pt.y;
@@ -502,7 +508,6 @@ namespace student {
 		// 			lower_limit = pt.y;
 		// 		}
 		// 	}
-
 		// 	if (upper_limit == -1){
 		// 		upper_limit = pt.y;
 		// 	} else {
@@ -520,6 +525,7 @@ namespace student {
 		// 	cv::line(plot, cv::Point2f(segment[0].x*1000, segment[0].y*1000), cv::Point2f(segment[1].x*1000, segment[1].y*1000), cv::Scalar(100, 100, 100), 2);
 		// 	std::cout << std::endl;
 		// }
+		// std::cout << std::endl;
 
 		// cv::imshow("VCD", plot);
 		// cv::waitKey(5000);
@@ -540,19 +546,21 @@ namespace student {
 			Point cell_centroid = get_cell_centroid(cell);
 			cv::circle(plot, cv::Point2f(cell_centroid.x*1000, cell_centroid.y*1000), 2, cv::Scalar(0, 0, 255), 2);
 		}
+		// std::cout << std::endl;
 
 		cv::imshow("VCD", plot);
 		cv::waitKey(5000);
 
 		// Get roadmap from cells
-		bool add_addinitonal_edges = true;
-		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, add_addinitonal_edges, gate_list, x, y);
+		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, gate_list, x, y);
 		std::vector<Point> nodes = std::get<0>(roadmap);
 		// std::cout << "nodes:" << std::endl;
 		for (const Point& node : nodes){
 			// std::cout << node.x << " " << node.y << std::endl;
 			cv::circle(plot, cv::Point2f(node.x*1000, node.y*1000), 2, cv::Scalar(255, 0, 255), 2);
 		}
+		// std::cout << std::endl;
+
 		std::vector< std::vector<float> > adjacency_matrix = std::get<1>(roadmap);
 		// std::cout << "adjacency_matrix:" << std::endl;
 		for (int i=0; i<adjacency_matrix.size(); ++i){
@@ -564,10 +572,11 @@ namespace student {
 			}
 			// std::cout << std::endl;
 		}
+		// std::cout << std::endl;
 
 		// Using a ucs find the best feasibile path for all robots
-		int target_index = adjacency_matrix.size() - 1;
-		std::vector<float> optimal_cost = ucs(adjacency_matrix, target_index);
+		int target_node = adjacency_matrix.size() - 1;
+		std::vector<float> optimal_cost = ucs(adjacency_matrix, target_node);
 		// std::cout << "UCS:" << std::endl;
 		for(int i=0; i<nodes.size(); i++){
 			// std::cout << optimal_cost[i] << std::endl;
@@ -579,6 +588,7 @@ namespace student {
 			    CV_RGB(118, 185, 0), //font color
 			    2);
 		}
+		// std::cout << std::endl;
 
 		cv::imshow("VCD", plot);
 		cv::waitKey(5000);
@@ -593,13 +603,15 @@ namespace student {
 				initial_nodes.push_back(initial_node);
 			}
 		}
-		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, adjacency_matrix, initial_nodes, nodes);
+		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, nodes, adjacency_matrix, initial_nodes, target_node, offset_value);
+		// std::cout << "Optimal paths:" << std::endl;
 		for(int i=0; i<optimal_paths.size(); i++){
 			for(int j=0; j<optimal_paths[i].size(); j++){
-				std::cout<<optimal_paths[i][j]<<" ";
+				// std::cout<<optimal_paths[i][j]<<" ";
 			}
-			std::cout<<std::endl;
-		}		
+			// std::cout<<std::endl;
+		}
+		// std::cout<<std::endl;
 
 		// reach the target in an easy way (directly connecting them) [TODO: use multi-point dubins to smooth the paths]
 		for (int i=0; i<optimal_paths.size(); i++){

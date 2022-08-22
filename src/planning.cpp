@@ -50,9 +50,8 @@ std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int t
 }
 
 
-std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost, std::vector<std::vector<float>> adjacency_matrix, std::vector<int> initial_nodes, std::vector<Point> nodes){
+std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost, std::vector<Point> nodes, std::vector<std::vector<float>> adjacency_matrix, std::vector<int> initial_nodes, int target_node, float offset_value){
 	int arrived_robots = 0;
-	int target = adjacency_matrix.size()-1;
 	std::vector<std::vector<int>> optimal_paths = {};
 	for (int initial_node : initial_nodes){
 		optimal_paths.push_back({initial_node});
@@ -61,14 +60,14 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 		std::vector<int> unaccessibles_nodes = {};
 		for (int i=0; i<initial_nodes.size(); i++){
 			int current_node = optimal_paths[i].back();
-			if (current_node == target){
+			if (current_node == target_node){
 				continue;
 			}
 			float smallest_cost = optimal_cost[current_node];
 			int optimal_node = current_node;
 			for (int j=0; j<adjacency_matrix.size(); j++){
 				// If the node is neighbour and, it's free or it is the gate.
-				if (adjacency_matrix[current_node][j] != 0.0 && (std::find(unaccessibles_nodes.begin(), unaccessibles_nodes.end(), j) == unaccessibles_nodes.end() || j == target)){
+				if (adjacency_matrix[current_node][j] != 0.0 && (std::find(unaccessibles_nodes.begin(), unaccessibles_nodes.end(), j) == unaccessibles_nodes.end() || j == target_node)){
 					// Check if it has a smaller cost.
 					if (smallest_cost > optimal_cost[j]){
 						smallest_cost = optimal_cost[j];
@@ -77,14 +76,14 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 				}
 			}
 			optimal_paths[i].push_back(optimal_node);
-			if (optimal_node == target){
+			if (optimal_node == target_node){
 				arrived_robots++;
 			}
 
 			// Add to the unaccessibles_nodes list the nodes that are close to the next robot position
 			for (int j=0; j<nodes.size(); j++){
 				int eucl_distance = sqrt(pow(nodes[optimal_node].x - nodes[j].x, 2) + pow(nodes[optimal_node].y - nodes[j].y, 2));
-				if (eucl_distance < 50.0/1000.0){
+				if (eucl_distance < offset_value){
 					unaccessibles_nodes.push_back(j);
 				}
 			}
