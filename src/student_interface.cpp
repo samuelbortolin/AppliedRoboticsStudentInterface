@@ -567,7 +567,7 @@ namespace student {
 			for (int j=0; j<adjacency_matrix[i].size(); ++j){
 				// std::cout << adjacency_matrix[i][j] << "\t";
 				if (adjacency_matrix[i][j] > 0.0){
-					cv::line(plot, cv::Point2f(nodes[i].x*1000, nodes[i].y*1000), cv::Point2f(nodes[j].x*1000, nodes[j].y*1000), cv::Scalar(255, 255, 0), 2);
+					cv::line(plot, cv::Point2f(nodes[i].x*1000, nodes[i].y*1000), cv::Point2f(nodes[j].x*1000, nodes[j].y*1000), cv::Scalar(0, 255, 255), 2);
 				}
 			}
 			// std::cout << std::endl;
@@ -577,16 +577,39 @@ namespace student {
 		// Using a ucs find the best feasibile path for all robots
 		int target_node = adjacency_matrix.size() - 1;
 		std::vector<float> optimal_cost = ucs(adjacency_matrix, target_node);
+		std::vector<int> initial_nodes = {};
+		for(int i=0; i<x.size(); i++){
+			initial_nodes.push_back(adjacency_matrix.size() - gate_list.size() - x.size() + i);
+		}
+
 		// std::cout << "UCS:" << std::endl;
 		for(int i=0; i<nodes.size(); i++){
 			// std::cout << optimal_cost[i] << std::endl;
-			cv::putText(plot, //target image
-			    std::to_string(optimal_cost[i]), //text
-			    cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
-			    cv::FONT_HERSHEY_DUPLEX,
-			    1.0,
-			    CV_RGB(118, 185, 0), //font color
-			    2);
+			if (i == target_node){
+				cv::putText(plot,
+					"target",
+					cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
+					cv::FONT_HERSHEY_DUPLEX,
+					0.8,
+					CV_RGB(255, 0, 255),
+					2);
+			} else if (std::find(initial_nodes.begin(), initial_nodes.end(), i) != initial_nodes.end()){
+				cv::putText(plot,
+					"robot " + std::to_string(optimal_cost[i]),
+					cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
+					cv::FONT_HERSHEY_DUPLEX,
+					0.8,
+					CV_RGB(255, 0, 255),
+					2);
+			} else {
+				cv::putText(plot,
+					std::to_string(optimal_cost[i]),
+					cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
+					cv::FONT_HERSHEY_DUPLEX,
+					0.6,
+					CV_RGB(255, 0, 255),
+					2);
+			}
 		}
 		// std::cout << std::endl;
 
@@ -594,24 +617,30 @@ namespace student {
 		cv::waitKey(5000);
 
 		// Find optimal paths for all the robots without intersections
-		std::vector<int> initial_nodes = {};
-		for(int i=0; i<x.size(); i++){
-			int initial_node = adjacency_matrix.size() - gate_list.size() - x.size() + i;
-			if(optimal_cost[initial_node] < 0){
-				std::cout<<"Some of the robots can't reach the exit!!!";
+		std::vector<int> reachable_initial_nodes = {};
+		for (int i=0; i<initial_nodes.size(); i++){
+			if (optimal_cost[initial_nodes[i]] < 0){
+				std::cout<<"Some of the robots can't reach the exit!!!"<<std::endl;
 			} else {
-				initial_nodes.push_back(initial_node);
+				reachable_initial_nodes.push_back(initial_nodes[i]);
 			}
 		}
-		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, nodes, adjacency_matrix, initial_nodes, target_node, offset_value);
+
+		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, nodes, adjacency_matrix, reachable_initial_nodes, target_node, offset_value);
 		// std::cout << "Optimal paths:" << std::endl;
 		for(int i=0; i<optimal_paths.size(); i++){
 			for(int j=0; j<optimal_paths[i].size(); j++){
 				// std::cout<<optimal_paths[i][j]<<" ";
+				if (j != optimal_paths[i].size() - 1){
+					cv::line(plot, cv::Point2f(nodes[optimal_paths[i][j]].x*1000, nodes[optimal_paths[i][j]].y*1000), cv::Point2f(nodes[optimal_paths[i][j + 1]].x*1000, nodes[optimal_paths[i][j + 1]].y*1000), cv::Scalar(255, 255, 0), 2);
+				}
 			}
 			// std::cout<<std::endl;
 		}
 		// std::cout<<std::endl;
+
+		cv::imshow("VCD", plot);
+		cv::waitKey(5000);
 
 		// reach the target in an easy way (directly connecting them) [TODO: use multi-point dubins to smooth the paths]
 		for (int i=0; i<optimal_paths.size(); i++){
