@@ -115,7 +115,26 @@ std::vector< std::vector<Point> > create_segments_vertical_decomposition(std::ve
 }
 
 
-std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector<Polygon> obstacles){  // TODO: it is useful to merge cells?
+float cell_area(Polygon cell){
+	float area = 0;
+	int vertices_num = 4;
+	for (int i = 0; i < vertices_num; i += 2){
+		if (i+2 < vertices_num){
+			area += cell[i+1].x * (cell[i+2].y - cell[i].y) + cell[i+1].y * (cell[i].x - cell[i+2].x);
+		} else {
+			if (i+1 < vertices_num){
+				area += cell[i+1].x * (cell[0].y - cell[i].y) + cell[i+1].y * (cell[i].x - cell[0].x);
+			} else {
+				area += cell[0].x * (cell[0].y - cell[i].y) + cell[0].y * (cell[i].x - cell[0].x);
+			}
+		}
+	}
+	area = area / 2;
+	return area;
+}
+
+
+std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector<Polygon> obstacles){
 	float lower_limit = -1;
 	float upper_limit = -1;
 	float left_limit = -1;
@@ -340,6 +359,94 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 		}
 	}
 
+	// merge overlapping cells
+	std::vector<int> quads_to_remove;
+	std::vector<Polygon> quads_to_add;
+	Polygon temp1;
+	Polygon temp2;
+	Polygon new_quad;
+	float area1, area2, area3;
+
+	for (int cell1 = 0; cell1 < cells.size(); cell1++){
+		for (int cell2 = 0; cell2 < cells.size(); cell2++){
+			if(cell1 != cell2) {
+				if (cells[cell1][0].x == cells[cell2][0].x && cells[cell1][1].x == cells[cell2][1].x){
+					temp1 = cells[cell1];
+					temp2 = cells[cell2];
+					area1 = cell_area(temp1);
+					area2 = cell_area(temp2);
+
+					temp_point.x = temp1[0].x;
+					temp_point.y = std::min(temp1[0].y, temp2[0].y);
+					new_quad.push_back(temp_point);
+					temp_point.x = temp1[1].x;
+					temp_point.y = std::min(temp1[1].y, temp2[1].y);
+					new_quad.push_back(temp_point);
+					temp_point.x = temp1[1].x;
+					temp_point.y = std::max(temp1[2].y, temp2[2].y);
+					new_quad.push_back(temp_point);
+					temp_point.x = temp1[0].x;
+					temp_point.y = std::max(temp1[3].y, temp2[3].y);
+					new_quad.push_back(temp_point);
+					area3 = cell_area(new_quad);
+
+					if (area1 + area2 >= area3) {
+						quads_to_remove.push_back(cell1);
+						quads_to_remove.push_back(cell2);
+						quads_to_add.push_back(new_quad);
+					}
+					new_quad = {};
+				}
+			}
+		}
+	}
+	std::sort(quads_to_remove.begin(), quads_to_remove.end());
+	quads_to_remove.erase(std::unique(quads_to_remove.begin(), quads_to_remove.end()), quads_to_remove.end());
+	for (int quad = quads_to_remove.size() - 1; quad >= 0; quad--){
+		cells.erase(cells.begin() + quads_to_remove[quad]);
+	}
+	for (int quad = 0; quad < quads_to_add.size(); quad++){
+		cells.push_back(quads_to_add[quad]);
+	}
+
+	quads_to_remove = {};
+	for (int quad1 = 0; quad1 < cells.size(); quad1++){
+		for (int quad2 = quad1 + 1; quad2 < cells.size(); quad2++){
+			bool duplicate = true;
+			for (int point = 0; point < cells[quad1].size(); point++){
+				if ((cells[quad1][point].x != cells[quad2][point].x) || (cells[quad1][point].y != cells[quad2][point].y)){
+					duplicate = false;
+					break;
+				}
+			}
+			if (duplicate){
+				quads_to_remove.push_back(quad2);
+			}
+		}
+	}
+	std::sort(quads_to_remove.begin(), quads_to_remove.end());
+	quads_to_remove.erase(std::unique(quads_to_remove.begin(), quads_to_remove.end()), quads_to_remove.end());
+	for (int quad = quads_to_remove.size() - 1; quad >= 0; quad--){
+		cells.erase(cells.begin() + quads_to_remove[quad]);
+	}
+
+	quads_to_remove = {};
+	for (int quad1 = 0; quad1 < cells.size(); quad1 ++){
+		for (int quad2 = 0; quad2 < cells.size(); quad2 ++){
+			if (quad1 != quad2 && cells[quad1][0].x == cells[quad2][0].x && cells[quad1][1].x == cells[quad2][1].x){
+				if ((cells[quad1][0].y <= cells[quad2][0].y) && (cells[quad1][1].y <= cells[quad2][1].y) && (cells[quad1][2].y >= cells[quad2][2].y) && (cells[quad1][3].y >= cells[quad2][3].y)){
+					quads_to_remove.push_back(quad2);
+				}
+			}
+		}
+	}
+	std::sort(quads_to_remove.begin(), quads_to_remove.end());
+	quads_to_remove.erase(std::unique(quads_to_remove.begin(), quads_to_remove.end()), quads_to_remove.end());
+	for (int quad = quads_to_remove.size() - 1; quad >= 0; quad--){
+		cells.erase(cells.begin() + quads_to_remove[quad]);
+	}
+
+	// Add boundary cells
 	Polygon new_cell = {};
 	if(left_limit != std::get<0>(sorted_vertices[0]).x) {
 		new_cell.push_back(Point(left_limit, lower_limit));
