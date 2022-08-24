@@ -642,7 +642,7 @@ namespace student {
 		cv::imshow("VCD", plot);
 		cv::waitKey(5000);
 
-		// reach the target in an easy way (directly connecting them) [TODO: use multi-point dubins to smooth the paths]
+		// reach the target in an easy way (directly connecting them) [TODO: use multi-point dubins to smooth the paths and reach the target optimally]
 		for (int i=0; i<optimal_paths.size(); i++){
 			for (int j=0; j<optimal_paths[i].size() - 1; j++){
 				float ds = 0.1;

@@ -66,7 +66,7 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 			float smallest_cost = optimal_cost[current_node];
 			int optimal_node = current_node;
 			for (int j=0; j<adjacency_matrix.size(); j++){
-				// If the node is neighbour and, it's free or it is the gate.
+				// If the node is neighbour and, it's free or it is the gate. [TODO: use multi-point dubins to check feasibility of the path]
 				if (adjacency_matrix[current_node][j] != 0.0 && (std::find(unaccessibles_nodes.begin(), unaccessibles_nodes.end(), j) == unaccessibles_nodes.end() || j == target_node)){
 					// Check if it has a smaller cost.
 					if (smallest_cost > optimal_cost[j]){
