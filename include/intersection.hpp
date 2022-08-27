@@ -2,6 +2,13 @@
 
 
 /*!
+* Normalize an angle in range [0,2*pi).
+* @param[in]  angle		The angle to normalize.
+*/
+float mod2Pi(float angle);
+
+
+/*!
 * Check if there is a intersection between an arc and a segment.
 * @param[in]  a		The center of the circle.
 * @param[in]  r		The radius of the circe.

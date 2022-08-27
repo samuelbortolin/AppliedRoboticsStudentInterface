@@ -395,7 +395,9 @@ namespace student {
 
 	bool planPath(const Polygon& borders, const std::vector<Polygon>& obstacle_list, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y, const std::vector<float> theta, std::vector<Path>& path, const std::string& config_folder){
 		// Parameters
-		float offset_value = 0.050; // The offset value
+		float offset_value = 0.05;		// The offset value
+		float maximum_curvature = 15.0;		// The maximum curvature value
+		float ds = 0.05;			// The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node
 
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
@@ -468,7 +470,13 @@ namespace student {
 		// std::cout << std::endl;
 
 		cv::imshow("VCD", plot);
-		cv::waitKey(5000);
+		cv::waitKey(2500);
+
+		std::vector<Polygon> obstacles_and_borders;
+		for (int i=0; i<convex_hull_merged_obstacles.size(); i++){
+			obstacles_and_borders.push_back(convex_hull_merged_obstacles[i]);
+		}
+		obstacles_and_borders.push_back(borders_with_offset);
 
 		// std::cout << "intersection arc segment: ";
 		// std::cout << intersection_arc_segment(Point(0, 0), 1, 0, M_PI, Point(0, 0), Point(0, 2)) << std::endl;
@@ -528,7 +536,7 @@ namespace student {
 		// std::cout << std::endl;
 
 		// cv::imshow("VCD", plot);
-		// cv::waitKey(5000);
+		// cv::waitKey(2500);
 
 		// Find VCD cells
 		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, convex_hull_merged_obstacles);
@@ -549,7 +557,7 @@ namespace student {
 		// std::cout << std::endl;
 
 		cv::imshow("VCD", plot);
-		cv::waitKey(5000);
+		cv::waitKey(2500);
 
 		// Get roadmap from cells
 		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, gate_list, x, y);
@@ -574,7 +582,7 @@ namespace student {
 		}
 		// std::cout << std::endl;
 
-		// Using a ucs find the best feasibile path for all robots
+		// Using a ucs find the best feasibile path for all robots (TODO synchronous movement of robots?)
 		int target_node = adjacency_matrix.size() - 1;
 		std::vector<float> optimal_cost = ucs(adjacency_matrix, target_node);
 		std::vector<int> initial_nodes = {};
@@ -614,13 +622,13 @@ namespace student {
 		// std::cout << std::endl;
 
 		cv::imshow("VCD", plot);
-		cv::waitKey(5000);
+		cv::waitKey(2500);
 
 		// Find optimal paths for all the robots without intersections
 		std::vector<int> reachable_initial_nodes = {};
 		for (int i=0; i<initial_nodes.size(); i++){
 			if (optimal_cost[initial_nodes[i]] < 0){
-				std::cout<<"Some of the robots can't reach the exit!!!"<<std::endl;
+				reachable_initial_nodes.push_back(initial_nodes[target_node]);
 			} else {
 				reachable_initial_nodes.push_back(initial_nodes[i]);
 			}
@@ -640,18 +648,40 @@ namespace student {
 		// std::cout<<std::endl;
 
 		cv::imshow("VCD", plot);
-		cv::waitKey(5000);
+		cv::waitKey(2500);
 
-		// reach the target in an easy way (directly connecting them) [TODO: use multi-point dubins to smooth the paths and reach the target optimally]
+		// use multi-point dubins to smooth the paths and reach the target optimally
+		std::vector< std::vector<RobotBasePose> > path_points = {};
 		for (int i=0; i<optimal_paths.size(); i++){
-			for (int j=0; j<optimal_paths[i].size() - 1; j++){
-				float ds = 0.1;
-				float dx = (nodes[optimal_paths[i][j + 1]].x - nodes[optimal_paths[i][j]].x) / 50;
-				float dy = (nodes[optimal_paths[i][j + 1]].y - nodes[optimal_paths[i][j]].y) / 50;
-				for (float l=0, s=0; l<50; l++, s+=ds){
-				    path[i].points.emplace_back(s, nodes[optimal_paths[i][j]].x+dx*l, nodes[optimal_paths[i][j]].y+dy*l, theta[i], 0.0);	
-				}
+			std::vector<RobotBasePose> one_path_points;
+			RobotBasePose temp_pt;
+			for (int j=0; j<optimal_paths[i].size(); j++) {
+				temp_pt = {nodes[optimal_paths[i][j]].x, nodes[optimal_paths[i][j]].y, -1};
+				one_path_points.push_back(temp_pt);
 			}
+			path_points.push_back(one_path_points);
+			path_points[i][0].theta = mod2Pi(theta[i]);
+		}
+
+		// std::cout<<"Multi-point Dubins"<<std::endl;
+		for(int robot = 0; robot < optimal_paths.size(); robot ++){
+			if (path_points[robot].size() > 1){
+				std::vector<ShortestDubinsPath> mdubins = find_multipoint_dubins_path(path_points[robot], obstacles_and_borders, maximum_curvature, ds);
+				if (mdubins.size() > 0){
+					std::cout<<"Found a Dubins path for robot "<< std::to_string(robot + 1) << std::endl;
+					for (int i = 0; i < mdubins.size(); i++){
+						for (auto it = mdubins[i].dubinsWPList.begin(); it != mdubins[i].dubinsWPList.end(); ++it){
+							path[robot].points.emplace_back((*it).s, (*it).pos.x, (*it).pos.y, (*it).pos.theta, (*it).k);
+							// std::cout << (*it).s << " " << (*it).pos.x << " " << (*it).pos.y << " " << (*it).pos.theta << " " << (*it).k << std::endl;
+						}
+					}
+				} else {
+					std::cout<<"It is not possible to find a Dubins path for robot "<< std::to_string(robot + 1) << "!" << std::endl;
+				}
+			} else {
+				std::cout<<"Robot "<< std::to_string(robot + 1) << " can't reach the exit!" << std::endl;
+			}
+			std::cout<<std::endl;
 		}
 
 		return true;

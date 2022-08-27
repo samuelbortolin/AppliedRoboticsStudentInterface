@@ -66,8 +66,14 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 			float smallest_cost = optimal_cost[current_node];
 			int optimal_node = current_node;
 			for (int j=0; j<adjacency_matrix.size(); j++){
-				// If the node is neighbour and, it's free or it is the gate. [TODO: use multi-point dubins to check feasibility of the path]
-				if (adjacency_matrix[current_node][j] != 0.0 && (std::find(unaccessibles_nodes.begin(), unaccessibles_nodes.end(), j) == unaccessibles_nodes.end() || j == target_node)){
+				// If the node is neighbour and, it's free or it is the gate and the reciprocal distance to the target w.r.t. to other robots is bigger than offset_value.
+				bool target_free = true;
+				for (int k=0; k<i; k++){
+					if (optimal_paths[k].size() > optimal_paths[i].size() && optimal_cost[optimal_paths[k][optimal_paths[i].size()]] < offset_value && std::abs(optimal_cost[optimal_paths[k][optimal_paths[i].size()]] - optimal_cost[optimal_paths[i].back()]) < offset_value){
+						target_free = false;
+					}
+				}
+				if (adjacency_matrix[current_node][j] != 0.0 && (std::find(unaccessibles_nodes.begin(), unaccessibles_nodes.end(), j) == unaccessibles_nodes.end() || (j==target_node && target_free))){
 					// Check if it has a smaller cost.
 					if (smallest_cost > optimal_cost[j]){
 						smallest_cost = optimal_cost[j];
@@ -82,7 +88,7 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 
 			// Add to the unaccessibles_nodes list the nodes that are close to the next robot position
 			for (int j=0; j<nodes.size(); j++){
-				int eucl_distance = sqrt(pow(nodes[optimal_node].x - nodes[j].x, 2) + pow(nodes[optimal_node].y - nodes[j].y, 2));
+				float eucl_distance = sqrt(pow(nodes[optimal_node].x - nodes[j].x, 2) + pow(nodes[optimal_node].y - nodes[j].y, 2));
 				if (eucl_distance < offset_value){
 					unaccessibles_nodes.push_back(j);
 				}
