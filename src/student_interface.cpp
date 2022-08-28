@@ -705,7 +705,7 @@ namespace student {
 						steps_to_perform = multipoint_dubins_path.size();
 					}
 					std::cout << "Found a Dubins path for robot " << robot + 1 << "!" << std::endl;
-					for (int i = 0; i < 1; i++){  // Synchronous movement of robots: move forward for only one step
+					for (int i = 0; i < steps_to_perform; i++){
 						for (DubinsPathPoint dubins_path_point : multipoint_dubins_path[i].dubins_path_points){
 							path[robot].points.emplace_back(dubins_path_point.s, dubins_path_point.pos.x, dubins_path_point.pos.y, dubins_path_point.pos.theta, dubins_path_point.k);
 							if (debug_logs){
