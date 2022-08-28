@@ -693,7 +693,11 @@ namespace student {
 					std::cout << "It is not possible to find a Dubins path for robot " << robot + 1 << "!" << std::endl;
 				}
 			} else {
-				std::cout << "Robot " << robot + 1 << " can't reach the exit!" << std::endl;
+				if (optimal_cost[initial_nodes[robot]] < 0){
+					std::cout << "Robot " << robot + 1 << " can't reach the exit!" << std::endl;
+				} else {
+					std::cout << "Robot " << robot + 1 << " is already at the exit!" << std::endl;
+				}
 			}
 			std::cout << std::endl;
 		}
