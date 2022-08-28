@@ -374,15 +374,6 @@ ShortestDubinsPath create_dubins_path(RobotBasePose pos0, RobotBasePose posf, fl
 		curve.a3 = a3;
 		curve.L = 0.0;
 		shortest_dubins_path.curve = curve;
-		std::vector<DubinsPathPoint> dubins_path_points;
-		for (int i=0; i<10; i++){
-			DubinsPathPoint dubins_path_point;
-			dubins_path_point.pos = pos0;
-			dubins_path_point.s = 0.0;
-			dubins_path_point.k = 0.0;
-			dubins_path_points.push_back(dubins_path_point);
-		}
-		shortest_dubins_path.dubins_path_points = dubins_path_points;
 	}
 	return shortest_dubins_path;
 }

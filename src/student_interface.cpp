@@ -397,7 +397,7 @@ namespace student {
 		// Parameters
 		float offset_value = 0.05;		// The offset value
 		float maximum_curvature = 15.0;		// The maximum curvature value
-		float ds = 0.05;			// The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node
+		float ds = 0.025;			// The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node
 
 		bool show_plots = false;
 		bool debug_logs = false;
@@ -577,7 +577,7 @@ namespace student {
 			}
 		}
 
-		// Using a UCS find the best feasibile path for all robots (TODO synchronous movement of robots?)
+		// Using a UCS find the best feasibile path for all robots
 		int target_node = adjacency_matrix.size() - 1;
 		std::vector<float> optimal_cost = ucs(adjacency_matrix, target_node);
 		std::vector<int> initial_nodes = {};
@@ -630,14 +630,14 @@ namespace student {
 		// Find optimal paths for all the robots without intersections
 		std::vector<int> reachable_initial_nodes = {};
 		for (int i=0; i<initial_nodes.size(); i++){
-			if (optimal_cost[initial_nodes[i]] < 0){
-				reachable_initial_nodes.push_back(initial_nodes[target_node]);
+			if (optimal_cost[initial_nodes[i]] < 2 * offset_value){
+				reachable_initial_nodes.push_back(target_node);
 			} else {
 				reachable_initial_nodes.push_back(initial_nodes[i]);
 			}
 		}
 
-		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, nodes, adjacency_matrix, reachable_initial_nodes, target_node, offset_value);
+		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, nodes, adjacency_matrix, reachable_initial_nodes, target_node, 2 * offset_value);
 		if (debug_logs){
 			std::cout << std::endl << "Optimal paths:" << std::endl;
 		}
@@ -681,7 +681,7 @@ namespace student {
 				std::vector<ShortestDubinsPath> multipoint_dubins_path = find_multipoint_dubins_path(path_points[robot], obstacles_and_borders, maximum_curvature, ds);
 				if (multipoint_dubins_path.size() > 0){
 					std::cout << "Found a Dubins path for robot " << robot + 1 << "!" << std::endl;
-					for (int i = 0; i < multipoint_dubins_path.size(); i++){
+					for (int i = 0; i < 1; i++){  // Synchronous movement of robots: move forward for only one step
 						for (auto it = multipoint_dubins_path[i].dubins_path_points.begin(); it != multipoint_dubins_path[i].dubins_path_points.end(); ++it){
 							path[robot].points.emplace_back((*it).s, (*it).pos.x, (*it).pos.y, (*it).pos.theta, (*it).k);
 							if (debug_logs){

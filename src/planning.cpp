@@ -55,6 +55,9 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 	std::vector<std::vector<int>> optimal_paths = {};
 	for (int initial_node : initial_nodes){
 		optimal_paths.push_back({initial_node});
+		if (initial_node == target_node){
+			arrived_robots++;
+		}
 	}
 	while (arrived_robots < initial_nodes.size()){
 		std::vector<int> unaccessibles_nodes = {};
