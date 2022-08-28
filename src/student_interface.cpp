@@ -395,31 +395,37 @@ namespace student {
 
 	bool planPath(const Polygon& borders, const std::vector<Polygon>& obstacle_list, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y, const std::vector<float> theta, std::vector<Path>& path, const std::string& config_folder){
 		// Parameters
-		float offset_value = 0.05;		// The offset value
+		float offset_value = 0.06;		// The offset value
 		float maximum_curvature = 15.0;		// The maximum curvature value
-		float ds = 0.025;			// The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node
+		float ds = 0.03;			// The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node
+		bool synchronous_movement = true;	// Whether to move synchronously the robots, in that case the robots will just move forward of one step in the graph
 
-		bool show_plots = false;
 		bool debug_logs = false;
+		bool show_plots = false;
+		int wait_key_time = 6000;
+		bool store_plots = false;
+		std::string image_folder = "/home/ubuntu/workspace/project/images/";
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
+		std::cout << std::endl << std::endl << " ------ Starting planning evaquation: ------ " << std::endl << std::endl;
+
 		if (debug_logs){
-			std::cout << std::endl << "robots positions:" << std::endl;
+			std::cout << std::endl << " --- Robots positions: --- " << std::endl;
 			for (int i = 0; i < x.size(); i++){
 				std::cout << x[i] << " " << y[i] << std::endl;
 			}
 
-			std::cout << std::endl << "gates position:" << std::endl;
+			std::cout << std::endl << " --- Gates position: --- " << std::endl;
 			for (int i = 0; i < gate_list.size(); i++){
 				std::cout << get_cell_centroid(gate_list[i]).x << " " << get_cell_centroid(gate_list[i]).y << std::endl;
 			}
 
-			std::cout << std::endl << "borders:" << std::endl;
+			std::cout << std::endl << " --- Borders: --- " << std::endl;
 			for (Point point : borders){
 				std::cout << point.x << " " << point.y << std::endl;
 			}
 
-			std::cout << std::endl << "obstacles:" << std::endl;
+			std::cout << std::endl << " --- Obstacles: --- " << std::endl;
 			for (Polygon obstacle : obstacle_list){
 				for (Point point : obstacle){
 					std::cout << point.x << " " << point.y << std::endl;
@@ -431,13 +437,13 @@ namespace student {
 		// Add offset the borders of the arena
 		const Polygon borders_with_offset = add_offset_to_borders(borders, -offset_value);
 		if (debug_logs){
-			std::cout << std::endl << "borders with offset:" << std::endl;
+			std::cout << std::endl << " --- Borders with offset: --- " << std::endl;
 		}
 		for (int i=0; i<borders_with_offset.size(); ++i){
 			if (debug_logs){
 				std::cout << borders_with_offset[i].x << " " << borders_with_offset[i].y << std::endl;
 			}
-			if (show_plots){
+			if (show_plots or store_plots){
 				if (i != borders_with_offset.size() - 1){
 					cv::line(plot, cv::Point2f(borders_with_offset[i].x*1000, borders_with_offset[i].y*1000), cv::Point2f(borders_with_offset[i + 1].x*1000, borders_with_offset[i + 1].y*1000), cv::Scalar(255, 0, 0), 2);
 				} else {
@@ -449,7 +455,7 @@ namespace student {
 		// Add offset the obstacles in the arena
 		std::vector<Polygon> obstacle_list_with_offset = add_offset_to_obstacles(obstacle_list, offset_value);
 		if (debug_logs){
-			std::cout << std::endl << "obstacles with offset:" << std::endl;
+			std::cout << std::endl << " --- Obstacles with offset: --- " << std::endl;
 			for (Polygon obstacle : obstacle_list_with_offset){
 				for (int i=0; i<obstacle.size(); ++i){
 					std::cout << obstacle[i].x << " " << obstacle[i].y << std::endl;
@@ -461,7 +467,7 @@ namespace student {
 		// Merge overlapping obstacles and consider borders
 		std::vector<Polygon> merged_obstacles = merge_obstacles(obstacle_list_with_offset, borders_with_offset);
 		if (debug_logs){
-			std::cout << std::endl << "merged obstacles:" << std::endl;
+			std::cout << std::endl << " --- Merged obstacles: --- " << std::endl;
 			for (Polygon obstacle : merged_obstacles){
 				for (int i=0; i<obstacle.size(); ++i){
 					std::cout << obstacle[i].x << " " << obstacle[i].y << std::endl;
@@ -473,14 +479,14 @@ namespace student {
 		// Then create the convex hull to get the final obstacles
 		std::vector<Polygon> convex_hull_merged_obstacles = create_convex_hull(merged_obstacles);
 		if (debug_logs){
-			std::cout << std::endl << "convex_hull_merged_obstacles:" << std::endl;
+			std::cout << std::endl << " --- Convex hull merged obstacles: --- " << std::endl;
 		}
 		for (Polygon obstacle : convex_hull_merged_obstacles){
 			for (int i=0; i<obstacle.size(); ++i){
 				if (debug_logs){
 					std::cout << obstacle[i].x << " " << obstacle[i].y << std::endl;
 				}
-				if (show_plots){
+				if (show_plots or store_plots){
 					if (i != obstacle.size() - 1){
 						cv::line(plot, cv::Point2f(obstacle[i].x*1000, obstacle[i].y*1000), cv::Point2f(obstacle[i + 1].x*1000, obstacle[i + 1].y*1000), cv::Scalar(255, 0, 0), 2);
 					} else {
@@ -501,13 +507,16 @@ namespace student {
 
 		if (show_plots){
 			cv::imshow("Inflated", plot);
-			cv::waitKey(2500);
+			cv::waitKey(wait_key_time);
+		}
+		if (store_plots){
+			cv::imwrite(image_folder + "Inflated.png", plot);
 		}
 
 		// Sort vertices
 		std::vector <std::tuple<Point, int> > sorted_vertices = sort_vertices(convex_hull_merged_obstacles);
 		if (debug_logs){
-			std::cout << std::endl << "sorted_vertices:" << std::endl;
+			std::cout << std::endl << " --- Sorted vertices: --- " << std::endl;
 			for (std::tuple<Point, int> vertex : sorted_vertices){
 				std::cout << std::get<0>(vertex).x << " " << std::get<0>(vertex).y << std::endl;
 			}
@@ -516,14 +525,14 @@ namespace student {
 		// Find VCD cells
 		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, convex_hull_merged_obstacles);
 		if (debug_logs){
-			std::cout << std::endl << "cells:" << std::endl;
+			std::cout << std::endl << " --- Cells: --- " << std::endl;
 		}
 		for (Polygon cell : cells){
 			for (int i=0; i<cell.size(); ++i){
 				if (debug_logs){
 					std::cout << cell[i].x << " " << cell[i].y << std::endl;
 				}
-				if (show_plots){
+				if (show_plots or store_plots){
 					if (i != cell.size() - 1){
 						cv::line(plot, cv::Point2f(cell[i].x*1000, cell[i].y*1000), cv::Point2f(cell[i + 1].x*1000, cell[i + 1].y*1000), cv::Scalar(0, 255, 0), 2);
 					} else {
@@ -534,41 +543,44 @@ namespace student {
 			if (debug_logs){
 				std::cout << std::endl;
 			}
-			if (show_plots){
+			if (show_plots or store_plots){
 				cv::circle(plot, cv::Point2f(get_cell_centroid(cell).x*1000, get_cell_centroid(cell).y*1000), 2, cv::Scalar(0, 0, 255), 2);
 			}
 		}
 
 		if (show_plots){
 			cv::imshow("VCD", plot);
-			cv::waitKey(2500);
+			cv::waitKey(wait_key_time);
+		}
+		if (store_plots){
+			cv::imwrite(image_folder + "VCD.png", plot);
 		}
 
 		// Get roadmap from cells
 		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, gate_list, x, y);
 		std::vector<Point> nodes = std::get<0>(roadmap);
 		if (debug_logs){
-			std::cout << std::endl << "nodes:" << std::endl;
+			std::cout << std::endl << " --- Nodes: --- " << std::endl;
 		}
 		for (const Point& node : nodes){
 			if (debug_logs){
 				std::cout << node.x << " " << node.y << std::endl;
 			}
-			if (show_plots){
+			if (show_plots or store_plots){
 				cv::circle(plot, cv::Point2f(node.x*1000, node.y*1000), 2, cv::Scalar(255, 0, 255), 2);
 			}
 		}
 
 		std::vector< std::vector<float> > adjacency_matrix = std::get<1>(roadmap);
 		if (debug_logs){
-			std::cout << std::endl << "adjacency_matrix:" << std::endl;
+			std::cout << std::endl << " --- Adjacency matrix: --- " << std::endl;
 		}
 		for (int i=0; i<adjacency_matrix.size(); ++i){
 			for (int j=0; j<adjacency_matrix[i].size(); ++j){
 				if (debug_logs){
 					std::cout << adjacency_matrix[i][j] << "\t";
 				}
-				if (show_plots && adjacency_matrix[i][j] > 0.0){
+				if ((show_plots or store_plots) && adjacency_matrix[i][j] > 0.0){
 					cv::line(plot, cv::Point2f(nodes[i].x*1000, nodes[i].y*1000), cv::Point2f(nodes[j].x*1000, nodes[j].y*1000), cv::Scalar(0, 255, 255), 2);
 				}
 			}
@@ -586,19 +598,19 @@ namespace student {
 		}
 
 		if (debug_logs){
-			std::cout << std::endl << "UCS:" << std::endl;
+			std::cout << std::endl << " --- UCS optimal costs: --- " << std::endl;
 		}
 		for(int i=0; i<nodes.size(); i++){
 			if (debug_logs){
 				std::cout << optimal_cost[i] << std::endl;
 			}
-			if (show_plots){
+			if (show_plots or store_plots){
 				if (i == target_node){
 					cv::putText(plot,
 						"target",
 						cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
 						cv::FONT_HERSHEY_DUPLEX,
-						0.8,
+						0.75,
 						CV_RGB(255, 0, 255),
 						2);
 				} else if (std::find(initial_nodes.begin(), initial_nodes.end(), i) != initial_nodes.end()){
@@ -606,7 +618,7 @@ namespace student {
 						"robot " + std::to_string(optimal_cost[i]),
 						cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
 						cv::FONT_HERSHEY_DUPLEX,
-						0.8,
+						0.75,
 						CV_RGB(255, 0, 255),
 						2);
 				} else {
@@ -614,7 +626,7 @@ namespace student {
 						std::to_string(optimal_cost[i]),
 						cv::Point2f(nodes[i].x*1000, nodes[i].y*1000),
 						cv::FONT_HERSHEY_DUPLEX,
-						0.6,
+						0.5,
 						CV_RGB(255, 0, 255),
 						2);
 				}
@@ -624,7 +636,10 @@ namespace student {
 
 		if (show_plots){
 			cv::imshow("Roadmap", plot);
-			cv::waitKey(2500);
+			cv::waitKey(wait_key_time);
+		}
+		if (store_plots){
+			cv::imwrite(image_folder + "Roadmap.png", plot);
 		}
 
 		// Find optimal paths for all the robots without intersections
@@ -639,15 +654,15 @@ namespace student {
 
 		std::vector<std::vector<int>> optimal_paths = find_optimal_paths(optimal_cost, nodes, adjacency_matrix, reachable_initial_nodes, target_node, 2 * offset_value);
 		if (debug_logs){
-			std::cout << std::endl << "Optimal paths:" << std::endl;
+			std::cout << std::endl << " --- Optimal paths: --- " << std::endl;
 		}
 		for(int i=0; i<optimal_paths.size(); i++){
 			for(int j=0; j<optimal_paths[i].size(); j++){
 				if (debug_logs){
 					std::cout << optimal_paths[i][j] << " ";
 				}
-				if (show_plots && j != optimal_paths[i].size() - 1){
-					cv::line(plot, cv::Point2f(nodes[optimal_paths[i][j]].x*1000, nodes[optimal_paths[i][j]].y*1000), cv::Point2f(nodes[optimal_paths[i][j + 1]].x*1000, nodes[optimal_paths[i][j + 1]].y*1000), cv::Scalar(255, 255, 0), 2);
+				if ((show_plots or store_plots) && j != optimal_paths[i].size() - 1){
+					cv::line(plot, cv::Point2f(nodes[optimal_paths[i][j]].x*1000, nodes[optimal_paths[i][j]].y*1000), cv::Point2f(nodes[optimal_paths[i][j + 1]].x*1000, nodes[optimal_paths[i][j + 1]].y*1000), cv::Scalar(255, 255, 0), 5);
 				}
 			}
 			if (debug_logs){
@@ -657,7 +672,10 @@ namespace student {
 
 		if (show_plots){
 			cv::imshow("BestPaths", plot);
-			cv::waitKey(2500);
+			cv::waitKey(wait_key_time);
+		}
+		if (store_plots){
+			cv::imwrite(image_folder + "BestPaths.png", plot);
 		}
 
 		// use multi-point dubins to smooth the paths and reach the target optimally
@@ -674,19 +692,28 @@ namespace student {
 		}
 
 		if (debug_logs){
-			std::cout << std::endl << "Multi-point Dubins" << std::endl;
+			std::cout << std::endl << " --- Multi-point Dubins: --- " << std::endl;
 		}
 		for(int robot = 0; robot < optimal_paths.size(); robot ++){
 			if (path_points[robot].size() > 1){
 				std::vector<ShortestDubinsPath> multipoint_dubins_path = find_multipoint_dubins_path(path_points[robot], obstacles_and_borders, maximum_curvature, ds);
 				if (multipoint_dubins_path.size() > 0){
+					int steps_to_perform;
+					if (synchronous_movement){
+						steps_to_perform = 1;
+					} else {
+						steps_to_perform = multipoint_dubins_path.size();
+					}
 					std::cout << "Found a Dubins path for robot " << robot + 1 << "!" << std::endl;
 					for (int i = 0; i < 1; i++){  // Synchronous movement of robots: move forward for only one step
-						for (auto it = multipoint_dubins_path[i].dubins_path_points.begin(); it != multipoint_dubins_path[i].dubins_path_points.end(); ++it){
-							path[robot].points.emplace_back((*it).s, (*it).pos.x, (*it).pos.y, (*it).pos.theta, (*it).k);
+						for (DubinsPathPoint dubins_path_point : multipoint_dubins_path[i].dubins_path_points){
+							path[robot].points.emplace_back(dubins_path_point.s, dubins_path_point.pos.x, dubins_path_point.pos.y, dubins_path_point.pos.theta, dubins_path_point.k);
 							if (debug_logs){
-								std::cout << (*it).s << " " << (*it).pos.x << " " << (*it).pos.y << " " << (*it).pos.theta << " " << (*it).k << std::endl;
+								std::cout << dubins_path_point.s << " " << dubins_path_point.pos.x << " " << dubins_path_point.pos.y << " " << dubins_path_point.pos.theta << " " << dubins_path_point.k << std::endl;
 							}
+						}
+						if (debug_logs){
+							std::cout << std::endl;
 						}
 					}
 				} else {
@@ -694,12 +721,11 @@ namespace student {
 				}
 			} else {
 				if (optimal_cost[initial_nodes[robot]] < 0){
-					std::cout << "Robot " << robot + 1 << " can't reach the exit!" << std::endl;
+					std::cout << "Robot " << robot + 1 << " can't reach the gate!" << std::endl;
 				} else {
-					std::cout << "Robot " << robot + 1 << " is already at the exit!" << std::endl;
+					std::cout << "Robot " << robot + 1 << " is already at the gate!" << std::endl;
 				}
 			}
-			std::cout << std::endl;
 		}
 
 		if (show_plots){
