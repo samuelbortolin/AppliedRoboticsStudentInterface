@@ -67,7 +67,7 @@ struct PrimitiveResult{
 typedef PrimitiveResult (*DubinsTypes) (ScaledParameters sp);
 
 
-struct dubinsWaypoint{
+struct DubinsPathPoint{
 	RobotBasePose pos;
 	float s;
 	float k;
@@ -77,7 +77,7 @@ struct dubinsWaypoint{
 struct ShortestDubinsPath{
 	bool find_dubins = false;
 	DubinsCurve curve;
-	std::vector<dubinsWaypoint> dubinsWPList;
+	std::vector<DubinsPathPoint> dubins_path_points;
 };
 
 

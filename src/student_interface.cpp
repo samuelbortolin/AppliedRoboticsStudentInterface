@@ -678,11 +678,11 @@ namespace student {
 		}
 		for(int robot = 0; robot < optimal_paths.size(); robot ++){
 			if (path_points[robot].size() > 1){
-				std::vector<ShortestDubinsPath> mdubins = find_multipoint_dubins_path(path_points[robot], obstacles_and_borders, maximum_curvature, ds);
-				if (mdubins.size() > 0){
+				std::vector<ShortestDubinsPath> multipoint_dubins_path = find_multipoint_dubins_path(path_points[robot], obstacles_and_borders, maximum_curvature, ds);
+				if (multipoint_dubins_path.size() > 0){
 					std::cout << "Found a Dubins path for robot " << robot + 1 << "!" << std::endl;
-					for (int i = 0; i < mdubins.size(); i++){
-						for (auto it = mdubins[i].dubinsWPList.begin(); it != mdubins[i].dubinsWPList.end(); ++it){
+					for (int i = 0; i < multipoint_dubins_path.size(); i++){
+						for (auto it = multipoint_dubins_path[i].dubins_path_points.begin(); it != multipoint_dubins_path[i].dubins_path_points.end(); ++it){
 							path[robot].points.emplace_back((*it).s, (*it).pos.x, (*it).pos.y, (*it).pos.theta, (*it).k);
 							if (debug_logs){
 								std::cout << (*it).s << " " << (*it).pos.x << " " << (*it).pos.y << " " << (*it).pos.theta << " " << (*it).k << std::endl;

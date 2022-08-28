@@ -205,6 +205,7 @@ DubinsCurve create_dubins_curve(RobotBasePose pos0, OriginalLength ol, float *ks
 
 
 bool check_collision(DubinsArc a, std::vector<Polygon> obstacles_and_borders, float Kmax){
+	std::vector<Point> line1;
 	std::vector<Point> line2;
 	double x, y, s, e;
 	if (a.k == 0){
@@ -225,7 +226,6 @@ bool check_collision(DubinsArc a, std::vector<Polygon> obstacles_and_borders, fl
 	}
 	for (int i = 0; i < obstacles_and_borders.size(); i++){
 		for (int j = 0; j < obstacles_and_borders[i].size(); j++){
-			std::vector<Point> line1;
 			if (j != obstacles_and_borders[i].size() - 1){
 				line1 = {obstacles_and_borders[i][j], obstacles_and_borders[i][j+1]};
 			} else {
@@ -246,34 +246,34 @@ bool check_collision(DubinsArc a, std::vector<Polygon> obstacles_and_borders, fl
 }
 
 
-void get_dubins_arc_points(DubinsArc arc, std::vector<dubinsWaypoint>& dubinsWPList, float ds){
+void get_dubins_arc_points(DubinsArc arc, std::vector<DubinsPathPoint>& dubins_path_points, float ds){
 	float s;
-	if (dubinsWPList.empty()){
+	if (dubins_path_points.empty()){
 		s = 0.0;
 	} else {
-		s = dubinsWPList.back().s;
+		s = dubins_path_points.back().s;
 	}
 	for (float l=0; l<arc.L; l+=ds){
-		dubinsWaypoint wpt;
-		wpt.pos = compute_final_pose(arc.pos0, std::min(l, arc.L), arc.k);
-		wpt.s = s + std::min(l, arc.L);
-		wpt.k = arc.k;
-		dubinsWPList.push_back(wpt);
+		DubinsPathPoint dubins_path_point;
+		dubins_path_point.pos = compute_final_pose(arc.pos0, std::min(l, arc.L), arc.k);
+		dubins_path_point.s = s + std::min(l, arc.L);
+		dubins_path_point.k = arc.k;
+		dubins_path_points.push_back(dubins_path_point);
 	}
 }
 
 
-std::vector<dubinsWaypoint> get_dubins_curve_points(DubinsCurve curve, float ds){
-	std::vector<dubinsWaypoint> dubinsWPList;
-	get_dubins_arc_points(curve.a1, dubinsWPList, ds);
-	get_dubins_arc_points(curve.a2, dubinsWPList, ds);
-	get_dubins_arc_points(curve.a3, dubinsWPList, ds);
-	return dubinsWPList;
+std::vector<DubinsPathPoint> get_dubins_curve_points(DubinsCurve curve, float ds){
+	std::vector<DubinsPathPoint> dubins_path_points;
+	get_dubins_arc_points(curve.a1, dubins_path_points, ds);
+	get_dubins_arc_points(curve.a2, dubins_path_points, ds);
+	get_dubins_arc_points(curve.a3, dubins_path_points, ds);
+	return dubins_path_points;
 }
 
 
 ShortestDubinsPath create_dubins_path(RobotBasePose pos0, RobotBasePose posf, float Kmax, std::vector<Polygon> obstacles_and_borders, float ds){
-	ShortestDubinsPath sd;
+	ShortestDubinsPath shortest_dubins_path;
 	if (pos0.x != posf.x || pos0.y != posf.y){
 		ScaledParametersWithLambda sp_lambda = scale_to_standard_form(pos0, posf, Kmax);
 		DubinsTypes primitives[] = {
@@ -344,15 +344,15 @@ ShortestDubinsPath create_dubins_path(RobotBasePose pos0, RobotBasePose posf, fl
 					coll = check_collision(result[i].a3, obstacles_and_borders, Kmax);
 				}
 				if (!coll){
-					sd.find_dubins = true;
-					sd.curve = result[i];
-					sd.dubinsWPList = get_dubins_curve_points(result[i], ds);
+					shortest_dubins_path.find_dubins = true;
+					shortest_dubins_path.curve = result[i];
+					shortest_dubins_path.dubins_path_points = get_dubins_curve_points(result[i], ds);
 					break;
 				}
 			}
 		}
 	} else {
-		sd.find_dubins = true;
+		shortest_dubins_path.find_dubins = true;
 		DubinsCurve curve;
 		DubinsArc a1;
 		a1.pos0 = pos0;
@@ -373,18 +373,18 @@ ShortestDubinsPath create_dubins_path(RobotBasePose pos0, RobotBasePose posf, fl
 		a3.posf = pos0;
 		curve.a3 = a3;
 		curve.L = 0.0;
-		sd.curve = curve;
-		std::vector<dubinsWaypoint> dubinsWPList;
+		shortest_dubins_path.curve = curve;
+		std::vector<DubinsPathPoint> dubins_path_points;
 		for (int i=0; i<10; i++){
-			dubinsWaypoint wpt;
-			wpt.pos = pos0;
-			wpt.s = 0.0;
-			wpt.k = 0.0;
-			dubinsWPList.push_back(wpt);
+			DubinsPathPoint dubins_path_point;
+			dubins_path_point.pos = pos0;
+			dubins_path_point.s = 0.0;
+			dubins_path_point.k = 0.0;
+			dubins_path_points.push_back(dubins_path_point);
 		}
-		sd.dubinsWPList = dubinsWPList;
+		shortest_dubins_path.dubins_path_points = dubins_path_points;
 	}
-	return sd;
+	return shortest_dubins_path;
 }
 
 
@@ -394,19 +394,19 @@ std::vector<ShortestDubinsPath> find_multipoint_dubins_path(std::vector<RobotBas
 	float dp[npoint-1][ntheta];
 	int dp_index[npoint-1][ntheta];
 	float dtheta = 2*M_PI/ntheta;
-	std::vector<ShortestDubinsPath> mdubins;
-	ShortestDubinsPath sd;
+	std::vector<ShortestDubinsPath> multipoint_dubins_path;
+	ShortestDubinsPath shortest_dubins_path;
 	if (npoint == 2){
 		dp[0][0] = std::numeric_limits<float>::infinity();
 		for (int i = 0; i < ntheta; i++){
 			path_points[1].theta = i*dtheta;
-			sd = create_dubins_path(path_points[0], path_points[1], Kmax, obstacles_and_borders, ds);
-			if (!sd.find_dubins){
+			shortest_dubins_path = create_dubins_path(path_points[0], path_points[1], Kmax, obstacles_and_borders, ds);
+			if (!shortest_dubins_path.find_dubins){
 				continue;
 			}
 
-			if (sd.curve.L < dp[0][0]){
-				dp[0][0] = sd.curve.L;
+			if (shortest_dubins_path.curve.L < dp[0][0]){
+				dp[0][0] = shortest_dubins_path.curve.L;
 				dp_index[0][0] = i;
 			}
 		}
@@ -418,19 +418,19 @@ std::vector<ShortestDubinsPath> find_multipoint_dubins_path(std::vector<RobotBas
 				if (path_points[i].x != path_points[i+1].x || path_points[i].y != path_points[i+1].y){
 					for (int k = 0; k < ntheta; k++){
 						path_points[i+1].theta = k*dtheta;
-						sd = create_dubins_path(path_points[i], path_points[i+1], Kmax, obstacles_and_borders, ds);
-						if (!sd.find_dubins){
+						shortest_dubins_path = create_dubins_path(path_points[i], path_points[i+1], Kmax, obstacles_and_borders, ds);
+						if (!shortest_dubins_path.find_dubins){
 							continue;
 						}
 
 						if (i == npoint-2){
-							if (sd.curve.L < dp[i][j]){
-								dp[i][j] = sd.curve.L;
+							if (shortest_dubins_path.curve.L < dp[i][j]){
+								dp[i][j] = shortest_dubins_path.curve.L;
 								dp_index[i][j] = k;
 							}
 						} else {
-							if ((sd.curve.L + dp[i+1][k]) < dp[i][j]){
-								dp[i][j] = sd.curve.L + dp[i+1][k];
+							if ((shortest_dubins_path.curve.L + dp[i+1][k]) < dp[i][j]){
+								dp[i][j] = shortest_dubins_path.curve.L + dp[i+1][k];
 								dp_index[i][j] = k;
 							}
 						}
@@ -445,13 +445,13 @@ std::vector<ShortestDubinsPath> find_multipoint_dubins_path(std::vector<RobotBas
 			dp[0][0] = std::numeric_limits<float>::infinity();
 			for (int i = 0; i < ntheta; i++){
 				path_points[1].theta = i*dtheta;
-				sd = create_dubins_path(path_points[0], path_points[1], Kmax, obstacles_and_borders, ds);
-				if (!sd.find_dubins){
+				shortest_dubins_path = create_dubins_path(path_points[0], path_points[1], Kmax, obstacles_and_borders, ds);
+				if (!shortest_dubins_path.find_dubins){
 					continue;
 				}
 
-				if ((sd.curve.L + dp[1][i]) < dp[0][0]){
-					dp[0][0] = sd.curve.L + dp[1][i];
+				if ((shortest_dubins_path.curve.L + dp[1][i]) < dp[0][0]){
+					dp[0][0] = shortest_dubins_path.curve.L + dp[1][i];
 					dp_index[0][0] = i;
 				}
 			}
@@ -477,10 +477,10 @@ std::vector<ShortestDubinsPath> find_multipoint_dubins_path(std::vector<RobotBas
 				id = dp_index[i][id];
 			}
 			path_points[i+1].theta = id*dtheta;
-			sd = create_dubins_path(path_points[i], path_points[i+1], Kmax, obstacles_and_borders, ds);
-			mdubins.emplace_back(sd);
+			shortest_dubins_path = create_dubins_path(path_points[i], path_points[i+1], Kmax, obstacles_and_borders, ds);
+			multipoint_dubins_path.emplace_back(shortest_dubins_path);
 		}
 	}
-	return mdubins;
+	return multipoint_dubins_path;
 }
 
