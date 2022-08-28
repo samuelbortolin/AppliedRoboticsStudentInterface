@@ -1,10 +1,9 @@
+#ifndef DUBINS_HPP
+#define DUBINS_HPP
+
 #include "utils.hpp"
 #include "intersection.hpp"
 #include <limits>
-
-
-#ifndef DUBINS_HPP
-#define DUBINS_HPP
 
 
 struct RobotBasePose{
