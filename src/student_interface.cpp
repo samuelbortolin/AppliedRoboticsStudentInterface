@@ -400,10 +400,10 @@ namespace student {
 		float ds = 0.03;			// The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node
 		bool synchronous_movement = true;	// Whether to move synchronously the robots, in that case the robots will just move forward of one step in the graph
 
-		bool debug_logs = false;
-		bool show_plots = false;
+		bool debug_logs = true;
+		bool show_plots = true;
 		int wait_key_time = 6000;
-		bool store_plots = false;
+		bool store_plots = true;
 		std::string image_folder = "/home/ubuntu/workspace/project/images/";
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
@@ -523,7 +523,7 @@ namespace student {
 		}
 
 		// Find VCD cells
-		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, convex_hull_merged_obstacles);
+		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, convex_hull_merged_obstacles, offset_value);
 		if (debug_logs){
 			std::cout << std::endl << " --- Cells: --- " << std::endl;
 		}
@@ -557,7 +557,7 @@ namespace student {
 		}
 
 		// Get roadmap from cells
-		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, gate_list, x, y);
+		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, obstacles_and_borders, gate_list, x, y);
 		std::vector<Point> nodes = std::get<0>(roadmap);
 		if (debug_logs){
 			std::cout << std::endl << " --- Nodes: --- " << std::endl;

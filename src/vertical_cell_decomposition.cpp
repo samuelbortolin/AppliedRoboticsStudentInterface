@@ -134,7 +134,7 @@ float cell_area(Polygon cell){
 }
 
 
-std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector<Polygon> obstacles){
+std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::tuple<Point, int> > sorted_vertices, std::vector<Polygon> obstacles, float offset_value){
 	float lower_limit = -1;
 	float upper_limit = -1;
 	float left_limit = -1;
@@ -448,7 +448,7 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 
 	// Add boundary cells
 	Polygon new_cell = {};
-	if(left_limit != std::get<0>(sorted_vertices[0]).x) {
+	if ((std::get<0>(sorted_vertices[0]).x - left_limit) > offset_value){
 		new_cell.push_back(Point(left_limit, lower_limit));
 
 		temp_point.x = std::get<0>(sorted_vertices[0]).x;
@@ -465,7 +465,7 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 	}
 
 	new_cell = {};
-	if(right_limit != std::get<0>(sorted_vertices[sorted_vertices.size() - 1]).x) {
+	if ((right_limit - std::get<0>(sorted_vertices[sorted_vertices.size() - 1]).x) > offset_value){
 		temp_point.x = std::get<0>(sorted_vertices[sorted_vertices.size() - 1]).x;
 		temp_point.y = lower_limit;
 		new_cell.push_back(temp_point);
@@ -503,7 +503,7 @@ Point get_cell_centroid(Polygon cell){
 }
 
 
-std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y){
+std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles_and_borders, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y){
 	std::vector<int> same_boundary;
 	std::vector<Point> graph_vertices;
 	std::vector< std::vector<int> > graph_edges;
@@ -655,7 +655,7 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 	// Add all the possible edges in order to connect starting points, ending points and obtaining better routes
 	for (int i = 0; i < adjacency_matrix.size(); i++){
 		for (int j = 0; j < adjacency_matrix[i].size(); j++){
-			if (!get_intersection_segment_obstacles(graph_vertices[i], graph_vertices[j], obstacles)){
+			if (!get_intersection_segment_obstacles(graph_vertices[i], graph_vertices[j], obstacles_and_borders)){
 				float distance = sqrt(pow(graph_vertices[i].x - graph_vertices[j].x, 2) + pow(graph_vertices[i].y - graph_vertices[j].y, 2));
 				adjacency_matrix[i][j] = distance;
 				adjacency_matrix[j][i] = distance;
