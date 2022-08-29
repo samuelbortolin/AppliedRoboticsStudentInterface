@@ -1,3 +1,7 @@
+#ifndef INTERSECTION_HPP
+#define INTERSECTION_HPP
+
+
 #include "utils.hpp"
 
 
@@ -62,4 +66,7 @@ Point get_intersection_point_segment_segment(Point s1, Point e1, Point s2, Point
 * @param[in]  obstacles		The obstacles.
 */
 bool get_intersection_segment_obstacles(Point s1, Point e1, std::vector<Polygon> obstacles);
+
+
+#endif
 

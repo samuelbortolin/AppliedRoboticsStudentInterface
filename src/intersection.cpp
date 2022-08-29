@@ -61,6 +61,7 @@ bool intersection_arc_segment(Point a, double r, double s, double e, Point s2, P
 	return false;
 }
 
+
 // Decide if angle within an arc
 bool intersection_arc_pass(float theta, double s, double e){
 	if (s < e && theta >= s && theta <= e)
@@ -75,19 +76,16 @@ bool intersection_arc_pass(float theta, double s, double e){
 	return false;
 }
 
-float abs(float value){
-	if (value < 0) return value * (-1);
-	return value;
-}
 
 // Normalize an angle in range [0,2*pi)
 float mod2Pi(float angle){
     return angle - 2 * M_PI * floor(angle / (2 * M_PI));
 }
 
+
 bool intersection_arc_arc(Point a1, double r1, double s1, double e1, Point a2, double r2, double s2, double e2){
 	double eucl_distance = sqrt(pow(a1.x-a2.x,2) + pow(a1.y-a2.y,2));
-	if (eucl_distance <= (r1+r2) and eucl_distance >= abs(r1-r2)){
+	if (eucl_distance <= (r1+r2) and eucl_distance >= std::abs(r1-r2)){
 		double l = (r1*r1 - r2*r2 + eucl_distance*eucl_distance) / (2*eucl_distance);
 		double h = sqrt(r1*r1 - l*l);
 

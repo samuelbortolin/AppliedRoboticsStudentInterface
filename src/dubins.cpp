@@ -196,32 +196,32 @@ DubinsArc create_dubins_arc(RobotBasePose pos0, float k, float L){
 
 DubinsCurve create_dubins_curve(RobotBasePose pos0, OriginalLength ol, float *ks){
 	DubinsCurve curve;
-	curve.a1 = create_dubins_arc(pos0, ks[0], ol.s1);
-	curve.a2 = create_dubins_arc(curve.a1.posf, ks[1], ol.s2);
-	curve.a3 = create_dubins_arc(curve.a2.posf, ks[2], ol.s3);
+	curve.arc1 = create_dubins_arc(pos0, ks[0], ol.s1);
+	curve.arc2 = create_dubins_arc(curve.arc1.posf, ks[1], ol.s2);
+	curve.arc3 = create_dubins_arc(curve.arc2.posf, ks[2], ol.s3);
 	curve.L = ol.s1 + ol.s2 + ol.s3;
 	return curve;
 }
 
 
-bool check_collision(DubinsArc a, std::vector<Polygon> obstacles_and_borders, float Kmax){
+bool check_collision(DubinsArc arc, std::vector<Polygon> obstacles_and_borders, float Kmax){
 	std::vector<Point> line1;
 	std::vector<Point> line2;
 	double x, y, s, e;
-	if (a.k == 0){
-		line2 = {Point(a.pos0.x, a.pos0.y), Point(a.posf.x, a.posf.y)};
+	if (arc.k == 0){
+		line2 = {Point(arc.pos0.x, arc.pos0.y), Point(arc.posf.x, arc.posf.y)};
 	} else {
-		if (a.k > 0){
-			x = a.pos0.x - std::sin(a.pos0.theta)/Kmax;
-			y = a.pos0.y + std::cos(a.pos0.theta)/Kmax;
-			s = mod2Pi(a.pos0.theta - M_PI/2);
-			e = mod2Pi(a.posf.theta - M_PI/2);
+		if (arc.k > 0){
+			x = arc.pos0.x - std::sin(arc.pos0.theta)/Kmax;
+			y = arc.pos0.y + std::cos(arc.pos0.theta)/Kmax;
+			s = mod2Pi(arc.pos0.theta - M_PI/2);
+			e = mod2Pi(arc.posf.theta - M_PI/2);
 		}
-		if (a.k < 0){
-			x = a.pos0.x + std::sin(a.pos0.theta)/Kmax;
-			y = a.pos0.y - std::cos(a.pos0.theta)/Kmax;
-			s = mod2Pi(a.posf.theta + M_PI/2);
-			e = mod2Pi(a.pos0.theta + M_PI/2);
+		if (arc.k < 0){
+			x = arc.pos0.x + std::sin(arc.pos0.theta)/Kmax;
+			y = arc.pos0.y - std::cos(arc.pos0.theta)/Kmax;
+			s = mod2Pi(arc.posf.theta + M_PI/2);
+			e = mod2Pi(arc.pos0.theta + M_PI/2);
 		}
 	}
 	for (int i = 0; i < obstacles_and_borders.size(); i++){
@@ -231,7 +231,7 @@ bool check_collision(DubinsArc a, std::vector<Polygon> obstacles_and_borders, fl
 			} else {
 				line1 = {obstacles_and_borders[i][j], obstacles_and_borders[i][0]};
 			}
-			if (a.k == 0){
+			if (arc.k == 0){
 				if (intersection_segment_segment(line1[0], line1[1], line2[0], line2[1])){
 					return true;
 				}
@@ -265,9 +265,9 @@ void get_dubins_arc_points(DubinsArc arc, std::vector<DubinsPathPoint>& dubins_p
 
 std::vector<DubinsPathPoint> get_dubins_curve_points(DubinsCurve curve, float ds){
 	std::vector<DubinsPathPoint> dubins_path_points;
-	get_dubins_arc_points(curve.a1, dubins_path_points, ds);
-	get_dubins_arc_points(curve.a2, dubins_path_points, ds);
-	get_dubins_arc_points(curve.a3, dubins_path_points, ds);
+	get_dubins_arc_points(curve.arc1, dubins_path_points, ds);
+	get_dubins_arc_points(curve.arc2, dubins_path_points, ds);
+	get_dubins_arc_points(curve.arc3, dubins_path_points, ds);
 	return dubins_path_points;
 }
 
@@ -334,14 +334,14 @@ ShortestDubinsPath create_dubins_path(RobotBasePose pos0, RobotBasePose posf, fl
 		if (result.size() > 0){
 			for (int i = 0; i < result.size(); i++){
 				bool coll = false;
-				if (result[i].a1.L > 0){
-					coll = check_collision(result[i].a1, obstacles_and_borders, Kmax);
+				if (result[i].arc1.L > 0){
+					coll = check_collision(result[i].arc1, obstacles_and_borders, Kmax);
 				}
-				if (result[i].a2.L > 0 && !coll){
-					coll = check_collision(result[i].a2, obstacles_and_borders, Kmax);
+				if (result[i].arc2.L > 0 && !coll){
+					coll = check_collision(result[i].arc2, obstacles_and_borders, Kmax);
 				}
-				if (result[i].a3.L > 0 && !coll){
-					coll = check_collision(result[i].a3, obstacles_and_borders, Kmax);
+				if (result[i].arc3.L > 0 && !coll){
+					coll = check_collision(result[i].arc3, obstacles_and_borders, Kmax);
 				}
 				if (!coll){
 					shortest_dubins_path.find_dubins = true;
@@ -354,24 +354,24 @@ ShortestDubinsPath create_dubins_path(RobotBasePose pos0, RobotBasePose posf, fl
 	} else {
 		shortest_dubins_path.find_dubins = true;
 		DubinsCurve curve;
-		DubinsArc a1;
-		a1.pos0 = pos0;
-		a1.k = 0.0;
-		a1.L = 0.0;
-		a1.posf = pos0;
-		curve.a1 = a1;
-		DubinsArc a2;
-		a2.pos0 = pos0;
-		a2.k = 0.0;
-		a2.L = 0.0;
-		a2.posf = pos0;
-		curve.a2 = a2;
-		DubinsArc a3;
-		a3.pos0 = pos0;
-		a3.k = 0.0;
-		a3.L = 0.0;
-		a3.posf = pos0;
-		curve.a3 = a3;
+		DubinsArc arc1;
+		arc1.pos0 = pos0;
+		arc1.k = 0.0;
+		arc1.L = 0.0;
+		arc1.posf = pos0;
+		curve.arc1 = arc1;
+		DubinsArc arc2;
+		arc2.pos0 = pos0;
+		arc2.k = 0.0;
+		arc2.L = 0.0;
+		arc2.posf = pos0;
+		curve.arc2 = arc2;
+		DubinsArc arc3;
+		arc3.pos0 = pos0;
+		arc3.k = 0.0;
+		arc3.L = 0.0;
+		arc3.posf = pos0;
+		curve.arc3 = arc3;
 		curve.L = 0.0;
 		shortest_dubins_path.curve = curve;
 	}

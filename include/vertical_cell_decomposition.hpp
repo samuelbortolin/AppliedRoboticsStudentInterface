@@ -1,3 +1,7 @@
+#ifndef VCD_HPP
+#define VCD_HPP
+
+
 #include <tuple>
 #include <algorithm>
 #include "utils.hpp"
@@ -46,4 +50,7 @@ Point get_cell_centroid(Polygon cell);
 * @param[in]  y			The list of y coordinates of the robots.
 */
 std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadmap(std::vector<Polygon> cells, std::vector<Polygon> obstacles, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y);
+
+
+#endif
 

@@ -359,7 +359,7 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 		}
 	}
 
-	// merge overlapping cells
+	// Merge overlapping cells
 	std::vector<int> quads_to_remove;
 	std::vector<Polygon> quads_to_add;
 	Polygon temp1;
@@ -519,10 +519,10 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 	int use; 
 	int n;
 
-	// for each quad cell find the neigbour cells (that have a common boundary)
+	// For each quad cell find the neigbour cells (that have a common boundary)
 	for (int cell1 = 0; cell1 < cells.size(); cell1++){
 		same_boundary = {};
-		//compare to the rest of the cells if it is not the same cell
+		// Compare to the rest of the cells if it is not the same cell
 		for (int cell2 = 0; cell2 < cells.size(); cell2++){
 			if (cell1 != cell2){
 				if ((cells[cell1][1].x == cells[cell2][0].x) && 
@@ -560,14 +560,10 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 
 			if (place != -1){
 				temp_edge = {place, n};
-				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
-					graph_edges.push_back(temp_edge);
-				// }
+				graph_edges.push_back(temp_edge);
 			} else {
 				temp_edge = {n-1, n};
-				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
-					graph_edges.push_back(temp_edge);
-				// }
+				graph_edges.push_back(temp_edge);
 			}
 
 			temp_points = {};
@@ -589,14 +585,10 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 			if (place2 == -1){
 				graph_vertices.push_back(curr_centroid_vertex);
 				temp_edge = {n, n+1};
-				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
-					graph_edges.push_back(temp_edge);
-				// }
+				graph_edges.push_back(temp_edge);
 			} else {
 				temp_edge = {n, place2};
-				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
-					graph_edges.push_back(temp_edge);
-				// }
+				graph_edges.push_back(temp_edge);
 			}
 		} else if (same_boundary.size() > 1){
 			n = graph_vertices.size() - 1;
@@ -629,13 +621,9 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 					place2 = graph_vertices.size() - 1;
 				}
 				temp_edge = {use, place1};
-				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
-					graph_edges.push_back(temp_edge);
-				// }
+				graph_edges.push_back(temp_edge);
 				temp_edge = {place1, place2};
-				// if (!get_intersection_segment_obstacles(graph_vertices[temp_edge[0]], graph_vertices[temp_edge[1]], obstacles)){
-					graph_edges.push_back(temp_edge);
-				// }
+				graph_edges.push_back(temp_edge);
 			}
 		}
 	}
@@ -650,7 +638,7 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 		graph_vertices.push_back(get_cell_centroid(gate_list[i]));
 	}
 
-	// construct the adjacency matrix
+	// Construct the adjacency matrix
 	adjacency_matrix = {};
 	for (int i = 0; i < graph_vertices.size(); i++){
 		adjacency_matrix.push_back({});
@@ -664,7 +652,7 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 		adjacency_matrix[edge[1]][edge[0]] = distance;
 	}
 
-	// add all the possible edges in order to connect starting points, ending points and obtaining better routes
+	// Add all the possible edges in order to connect starting points, ending points and obtaining better routes
 	for (int i = 0; i < adjacency_matrix.size(); i++){
 		for (int j = 0; j < adjacency_matrix[i].size(); j++){
 			if (!get_intersection_segment_obstacles(graph_vertices[i], graph_vertices[j], obstacles)){

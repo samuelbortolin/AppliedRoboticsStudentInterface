@@ -1,3 +1,7 @@
+#ifndef OFFSET_HPP
+#define OFFSET_HPP
+
+
 #include "utils.hpp"
 #include "clipper/clipper.hpp"
 
@@ -30,4 +34,7 @@ std::vector<Polygon> merge_obstacles(const std::vector<Polygon> &obstacle_list, 
 * @param[in] obstacle_list	The list of obstacle polygon.
 */
 std::vector<Polygon> create_convex_hull(const std::vector<Polygon> obstacle_list);
+
+
+#endif
 

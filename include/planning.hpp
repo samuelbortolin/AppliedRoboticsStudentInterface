@@ -1,3 +1,7 @@
+#ifndef PLANNING_HPP
+#define PLANNING_HPP
+
+
 #include "utils.hpp"
 #include "dubins.hpp"
 #include <bits/stdc++.h>
@@ -21,4 +25,7 @@ std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int t
 * @param[in] offset_value		The offset value to be considered in order to avoid that robots collide.
 */
 std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost, std::vector<Point> nodes, std::vector<std::vector<float>> adjacency_matrix, std::vector<int> initial_nodes, int target_node, float offset_value);
+
+
+#endif
 

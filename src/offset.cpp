@@ -5,7 +5,7 @@
 #include "boost/geometry/algorithms/convex_hull.hpp"
 
 
-BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)  // Register the Cartesian coordinate system
 
 
 Polygon add_offset_to_borders(const Polygon& borders, float offset_value){
@@ -51,7 +51,7 @@ std::vector<Polygon> add_offset_to_obstacles(const std::vector<Polygon>& obstacl
 		co.AddPath(clipper_obstacle, ClipperLib::jtMiter, ClipperLib::etClosedPolygon);
 		co.Execute(clipper_obstacle_with_offset, offset_value * 1000.0);
 
-		// pass from clipper object to a polygon
+		// pass from clipper object to a obstacle
 		for (const ClipperLib::Path &path : clipper_obstacle_with_offset){
 			Polygon polygon_with_offset;
 			for (const ClipperLib::IntPoint &point: path){
@@ -97,7 +97,7 @@ std::vector<Polygon> merge_obstacles(const std::vector<Polygon> &obstacle_list, 
 	c_intersection.AddPaths(clipper_merged_obstacles, ClipperLib::ptClip, true);
 	c_intersection.Execute(ClipperLib::ctIntersection, clipper_merged_obstacles_considering_obstacles, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
 
-	// convert merged paths to merged obstacles
+	// convert merged clipper objects to merged obstacles
 	std::vector<Polygon> merged_obstacles;
 	for (const ClipperLib::Path &path : clipper_merged_obstacles_considering_obstacles){
 		// for each point in the path
@@ -113,7 +113,7 @@ std::vector<Polygon> merge_obstacles(const std::vector<Polygon> &obstacle_list, 
 }
 
 
-std::string convert_polygon_to_boost_polygon(const Polygon &polygon){
+boost::geometry::model::polygon<boost::tuple<double, double>> convert_polygon_to_boost_polygon(const Polygon &polygon){
 	std::string wkt_string = "polygon((";
 	for (int i = 0; i < polygon.size(); i++){
 		// Add the vertex segment pair to the string
@@ -122,7 +122,9 @@ std::string convert_polygon_to_boost_polygon(const Polygon &polygon){
 	// Add the closing vertex segment
 	wkt_string += std::to_string(polygon[0].x) + " " + std::to_string(polygon[0].y);
 	wkt_string += "))";
-	return wkt_string;
+	boost::geometry::model::polygon<boost::tuple<double, double>> boost_polygon;
+	boost::geometry::read_wkt(wkt_string, boost_polygon);
+	return boost_polygon;
 }
 
 
@@ -134,7 +136,6 @@ Polygon convert_boost_polygon_to_polygon(const boost::geometry::model::polygon<b
 		// Get boost polygon's vertex coordinates
 		point.x = boost_polygon.outer()[i].get<0>();
 		point.y = boost_polygon.outer()[i].get<1>();
-		// Save standard polygon
 		polygon.push_back(point);
 	}
 	return polygon;
@@ -144,16 +145,11 @@ Polygon convert_boost_polygon_to_polygon(const boost::geometry::model::polygon<b
 std::vector<Polygon> create_convex_hull(const std::vector<Polygon> obstacle_list){
 	std::vector<Polygon> convex_hulls;
 	for (int i = 0; i < obstacle_list.size(); i++){
-		// Convert the polygon to a string used by boost
-		std::string wkt_string = convert_polygon_to_boost_polygon(obstacle_list[i]);
-		boost::geometry::model::polygon<boost::tuple<double, double>> poly;
-		boost::geometry::model::polygon<boost::tuple<double, double>> hull;
-		// Convert the string to a boost polygon
-		boost::geometry::read_wkt(wkt_string, poly);
+		boost::geometry::model::polygon<boost::tuple<double, double>> boost_polygon = convert_polygon_to_boost_polygon(obstacle_list[i]);;
+		boost::geometry::model::polygon<boost::tuple<double, double>> boost_convex_hull;
 		// Apply the convex hull algorithm
-		boost::geometry::convex_hull(poly, hull);
-		// Convert back the boost polygon to a polygon
-		Polygon polygon = convert_boost_polygon_to_polygon(hull);
+		boost::geometry::convex_hull(boost_polygon, boost_convex_hull);
+		Polygon polygon = convert_boost_polygon_to_polygon(boost_convex_hull);
 		convex_hulls.push_back(polygon);
 	}
 	return convex_hulls;

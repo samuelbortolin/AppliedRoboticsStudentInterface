@@ -1,6 +1,7 @@
 #ifndef DUBINS_HPP
 #define DUBINS_HPP
 
+
 #include "utils.hpp"
 #include "intersection.hpp"
 #include <limits>
@@ -22,9 +23,9 @@ struct DubinsArc{
 
 
 struct DubinsCurve{
-	DubinsArc a1;
-	DubinsArc a2;
-	DubinsArc a3;
+	DubinsArc arc1;
+	DubinsArc arc2;
+	DubinsArc arc3;
 	float L;  // Total length of the curve
 };
 
@@ -89,6 +90,7 @@ struct ShortestDubinsPath{
 * @param[in]  ds				The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node.
 */
 std::vector<ShortestDubinsPath> find_multipoint_dubins_path(std::vector<RobotBasePose> path_points, std::vector<Polygon> obstacles_and_borders, float Kmax, float ds);
+
 
 #endif
 
