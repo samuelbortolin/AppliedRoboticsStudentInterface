@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <cmath>
+#include <chrono>
 #include <atomic>
 #include <unistd.h>
 #include <experimental/filesystem>
@@ -14,6 +15,8 @@
 #include "vertical_cell_decomposition.hpp"
 #include "dubins.hpp"
 #include "planning.hpp"
+
+using namespace std::chrono;
 
 
 namespace student {
@@ -394,16 +397,17 @@ namespace student {
 	}
 
 	bool planPath(const Polygon& borders, const std::vector<Polygon>& obstacle_list, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y, const std::vector<float> theta, std::vector<Path>& path, const std::string& config_folder){
+		auto start = high_resolution_clock::now();
 		// Parameters
 		float offset_value = 0.06;		// The offset value
 		float maximum_curvature = 15.0;		// The maximum curvature value
 		float ds = 0.03;			// The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node
 		bool synchronous_movement = true;	// Whether to move synchronously the robots, in that case the robots will just move forward of one step in the graph
 
-		bool debug_logs = true;
-		bool show_plots = true;
+		bool debug_logs = false;
+		bool show_plots = false;
 		int wait_key_time = 6000;
-		bool store_plots = true;
+		bool store_plots = false;
 		std::string image_folder = "/home/ubuntu/workspace/project/images/";
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
@@ -514,6 +518,7 @@ namespace student {
 		}
 
 		// Sort vertices
+		auto start_roadmap = high_resolution_clock::now();
 		std::vector <std::tuple<Point, int> > sorted_vertices = sort_vertices(convex_hull_merged_obstacles);
 		if (debug_logs){
 			std::cout << std::endl << " --- Sorted vertices: --- " << std::endl;
@@ -558,6 +563,7 @@ namespace student {
 
 		// Get roadmap from cells
 		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, obstacles_and_borders, gate_list, x, y);
+		auto stop_roadmap = high_resolution_clock::now();
 		std::vector<Point> nodes = std::get<0>(roadmap);
 		if (debug_logs){
 			std::cout << std::endl << " --- Nodes: --- " << std::endl;
@@ -731,6 +737,15 @@ namespace student {
 		if (show_plots){
 			cv::destroyAllWindows();
 		}
+
+		auto stop = high_resolution_clock::now();
+
+		auto duration_roadmap = duration_cast<microseconds>(stop_roadmap - start_roadmap);
+		std::cout << "Time taken by roadmap: " << duration_roadmap.count() << " microseconds" << std::endl;
+
+		auto duration = duration_cast<microseconds>(stop - start);
+		std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;
+
 		return true;
 	}
 }
