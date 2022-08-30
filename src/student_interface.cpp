@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <cmath>
+#include <chrono>
 #include <atomic>
 #include <unistd.h>
 #include <experimental/filesystem>
@@ -14,6 +15,8 @@
 #include "vertical_cell_decomposition.hpp"
 #include "dubins.hpp"
 #include "planning.hpp"
+
+using namespace std::chrono;
 
 
 namespace student {
@@ -394,6 +397,7 @@ namespace student {
 	}
 
 	bool planPath(const Polygon& borders, const std::vector<Polygon>& obstacle_list, const std::vector<Polygon>& gate_list, const std::vector<float> x, const std::vector<float> y, const std::vector<float> theta, std::vector<Path>& path, const std::string& config_folder){
+		auto start = high_resolution_clock::now();
 		// Parameters
 		float offset_value = 0.06;		// The offset value
 		float maximum_curvature = 15.0;		// The maximum curvature value
@@ -514,6 +518,7 @@ namespace student {
 		}
 
 		// Sort vertices
+		auto start_roadmap = high_resolution_clock::now();
 		std::vector <std::tuple<Point, int> > sorted_vertices = sort_vertices(convex_hull_merged_obstacles);
 		if (debug_logs){
 			std::cout << std::endl << " --- Sorted vertices: --- " << std::endl;
@@ -523,7 +528,7 @@ namespace student {
 		}
 
 		// Find VCD cells
-		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, convex_hull_merged_obstacles);
+		std::vector<Polygon> cells = find_cells(borders_with_offset, sorted_vertices, convex_hull_merged_obstacles, offset_value);
 		if (debug_logs){
 			std::cout << std::endl << " --- Cells: --- " << std::endl;
 		}
@@ -557,7 +562,8 @@ namespace student {
 		}
 
 		// Get roadmap from cells
-		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, convex_hull_merged_obstacles, gate_list, x, y);
+		std::tuple< std::vector<Point>, std::vector< std::vector<float> > > roadmap = create_roadmap(cells, obstacles_and_borders, gate_list, x, y);
+		auto stop_roadmap = high_resolution_clock::now();
 		std::vector<Point> nodes = std::get<0>(roadmap);
 		if (debug_logs){
 			std::cout << std::endl << " --- Nodes: --- " << std::endl;
@@ -731,6 +737,15 @@ namespace student {
 		if (show_plots){
 			cv::destroyAllWindows();
 		}
+
+		auto stop = high_resolution_clock::now();
+
+		auto duration_roadmap = duration_cast<microseconds>(stop_roadmap - start_roadmap);
+		std::cout << "Time taken by roadmap: " << duration_roadmap.count() << " microseconds" << std::endl;
+
+		auto duration = duration_cast<microseconds>(stop - start);
+		std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;
+
 		return true;
 	}
 }

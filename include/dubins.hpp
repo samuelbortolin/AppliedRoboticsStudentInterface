@@ -84,10 +84,10 @@ struct ShortestDubinsPath{
 
 /*!
 * Find a multipoint dubins path for a given robot given the path on the graph.
-* @param[in]  path_points			The points of path on the graph.
-* @param[in]  obstacles_and_borders		The obstacles and borders.
-* @param[in]  Kmax				The maximum curvature value.
-* @param[in]  ds				The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node.
+* @param[in] path_points			The points of path on the graph.
+* @param[in] obstacles_and_borders		The obstacles and borders.
+* @param[in] Kmax				The maximum curvature value.
+* @param[in] ds					The curvilinear abscissa of the movement of the robot from one point to the following one in reaching the next node.
 */
 std::vector<ShortestDubinsPath> find_multipoint_dubins_path(std::vector<RobotBasePose> path_points, std::vector<Polygon> obstacles_and_borders, float Kmax, float ds);
 

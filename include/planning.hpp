@@ -9,8 +9,8 @@
 
 /*!
 * Run the UCS algorithm in order to obtain the optimal cost to the target for each node.
-* @param[in]  adjacency_matrix		The adjacency matrix of the roadmap.
-* @param[in]  target			The index of the target node.
+* @param[in] adjacency_matrix		The adjacency matrix of the roadmap.
+* @param[in] target			The index of the target node.
 */
 std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int target);
 
