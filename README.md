@@ -34,9 +34,9 @@ location and no robot is allowed to move to the next location before a step comp
 ## Setup
 
 For running the code Ubuntu 16.04 is required. Moreover, before running the code make sure to follow the following steps:
-1. Have installed the OpenCV library following the instructions reproted in the [install_opencv.md](install_opencv.md) file.
-2. Have installed ROS and Gazebo following the instructions reproted in the [install_ros_and_gazebo.md](install_ros_and_gazebo.md) file.
-3. Have completed the setup of the simulator and of the project following the instructions reproted in the [simulator_setup.md](simulator_setup.md) file.
+1. Have installed the OpenCV library following the instructions reported in the [install_opencv.md](install_opencv.md) file.
+2. Have installed ROS and Gazebo following the instructions reported in the [install_ros_and_gazebo.md](install_ros_and_gazebo.md) file.
+3. Have completed the setup of the simulator and of the project following the instructions reported in the [simulator_setup.md](simulator_setup.md) file.
 
 
 ## Execute the code
@@ -68,7 +68,7 @@ $ AR_pipeline n:=3
 $ AR_rviz
 ```
 
-4. In the last one, run the planning part for moving of one node in the graph. This should be launched multiple times until all the rots reach the the exit gate
+4. In the last one, run the planning part for moving of one node in the graph. This should be launched multiple times until all the robots reach the exit gate
 
 ```bash
 $ AR_run
