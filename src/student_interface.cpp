@@ -63,7 +63,7 @@ namespace student {
 		}
 	}
 
-	// Defintion of the function pickNPoints and the callback mouseCallback.
+	// Definition of the function pickNPoints and the callback mouseCallback.
 	// The function pickNPoints is used to display a window with a background
 	// image, and to prompt the user to select n points on this image.
 	static cv::Mat bg_img;
@@ -411,7 +411,7 @@ namespace student {
 		std::string image_folder = "/home/ubuntu/workspace/project/images/";
 		cv::Mat plot(1100, 1600, CV_8UC3, cv::Scalar(255, 255, 255));
 
-		std::cout << std::endl << std::endl << " ------ Starting planning evaquation: ------ " << std::endl << std::endl;
+		std::cout << std::endl << std::endl << " ------ Starting planning evacuation: ------ " << std::endl << std::endl;
 
 		if (debug_logs){
 			std::cout << std::endl << " --- Robots positions: --- " << std::endl;
@@ -595,7 +595,7 @@ namespace student {
 			}
 		}
 
-		// Using a UCS find the best feasibile path for all robots
+		// Using a UCS find the best feasible path for all robots
 		int target_node = adjacency_matrix.size() - 1;
 		std::vector<float> optimal_cost = ucs(adjacency_matrix, target_node);
 		std::vector<int> initial_nodes = {};

@@ -15,7 +15,7 @@ Polygon add_offset_to_borders(const Polygon& borders, float offset_value);
 
 
 /*!
-* Add an offset to the obsticales in the arena to account for the size of the robot.
+* Add an offset to the obstacles in the arena to account for the size of the robot.
 * @param[in] obstacle_list	The list of obstacle polygon.
 * @param[in] offset_value	The offset to be added to the obstacles.
 */

@@ -37,7 +37,7 @@ std::vector<Polygon> find_cells(std::vector<Point> boundary, std::vector <std::t
 
 /*!
 * Get the cell centroid.
-* @param[in]  cell            The cell for which return the cenntroid.
+* @param[in]  cell            The cell for which return the centroid.
 */
 Point get_cell_centroid(Polygon cell);
 

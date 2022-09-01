@@ -19,7 +19,7 @@ std::vector<float> ucs(std::vector< std::vector<float> > adjacency_matrix, int t
 * Coordinate the motion between the robots and finds the feasible path for all robots (i.e., no collisions with obstacles or other robots).
 * @param[in] optimal_cost		The optimal cost to the target for each node.
 * @param[in] nodes			The nodes of the roadmap.
-* @param[in] adjacency_matrix		The adjancy matrix defining the roadmap.
+* @param[in] adjacency_matrix		The adjacency matrix defining the roadmap.
 * @param[in] initial_nodes		The nodes from which the robots start.
 * @param[in] target_node		The target node at which the robots should arrive.
 * @param[in] offset_value		The offset value to be considered in order to avoid that robots collide.

@@ -60,7 +60,7 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 		}
 	}
 	while (arrived_robots < initial_nodes.size()){
-		std::vector<int> unaccessibles_nodes = {};
+		std::vector<int> inaccessible_nodes = {};
 		for (int i=0; i<initial_nodes.size(); i++){
 			int current_node = optimal_paths[i].back();
 			if (current_node == target_node){
@@ -76,7 +76,7 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 						target_free = false;
 					}
 				}
-				if (adjacency_matrix[current_node][j] != 0.0 && (std::find(unaccessibles_nodes.begin(), unaccessibles_nodes.end(), j) == unaccessibles_nodes.end() || (j==target_node && target_free))){
+				if (adjacency_matrix[current_node][j] != 0.0 && (std::find(inaccessible_nodes.begin(), inaccessible_nodes.end(), j) == inaccessible_nodes.end() || (j==target_node && target_free))){
 					// Check if it has a smaller cost.
 					if (smallest_cost > optimal_cost[j]){
 						smallest_cost = optimal_cost[j];
@@ -89,11 +89,11 @@ std::vector<std::vector<int>> find_optimal_paths(std::vector<float> optimal_cost
 				arrived_robots++;
 			}
 
-			// Add to the unaccessibles_nodes list the nodes that are close to the next robot position
+			// Add to the inaccessible nodes list the nodes that are close to the next robot position
 			for (int j=0; j<nodes.size(); j++){
 				float eucl_distance = sqrt(pow(nodes[optimal_node].x - nodes[j].x, 2) + pow(nodes[optimal_node].y - nodes[j].y, 2));
 				if (eucl_distance < offset_value){
-					unaccessibles_nodes.push_back(j);
+					inaccessible_nodes.push_back(j);
 				}
 			}
 		}

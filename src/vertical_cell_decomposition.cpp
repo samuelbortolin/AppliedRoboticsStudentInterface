@@ -519,7 +519,7 @@ std::tuple< std::vector<Point>, std::vector< std::vector<float> > > create_roadm
 	int use; 
 	int n;
 
-	// For each quad cell find the neigbour cells (that have a common boundary)
+	// For each quad cell find the neighbour cells (that have a common boundary)
 	for (int cell1 = 0; cell1 < cells.size(); cell1++){
 		same_boundary = {};
 		// Compare to the rest of the cells if it is not the same cell
